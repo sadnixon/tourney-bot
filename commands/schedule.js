@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const sheet = require("../sheet");
 const { errorMessage } = require("../message-helpers");
-const { getStartDay } = require("../constants");
+const { getYear, getMonth, getStartDay } = require("../constants");
 const { format, utcToZonedTime } = require("date-fns-tz");
 
 async function scheduleEmbed(dayNumber, footer) {
@@ -48,16 +48,31 @@ async function scheduleEmbed(dayNumber, footer) {
 }
 
 async function execute(message, args, user) {
+  const YEAR = await getYear();
+  const MONTH = await getMonth();
+  const START_DAY = await getStartDay();
   const currentDate = new Date();
-  let dayNumber = Math.min(
-    10,
-    Math.max(
-      1,
-      currentDate.getUTCHours() < 9 // day changes at 9AM UTC
-        ? currentDate.getUTCDate() - (await getStartDay())
-        : currentDate.getUTCDate() - (await getStartDay()) + 1
-    )
-  );
+  const startDate = new Date(Date.UTC(YEAR, MONTH, START_DAY));
+  const endDate = new Date(Date.UTC(YEAR, MONTH, START_DAY + 8));
+  console.log(currentDate.getTime());
+  console.log(startDate.getTime());
+  console.log(currentDate.getTime() < startDate.getTime());
+  let dayNumber;
+  if (currentDate.getTime() < startDate.getTime()) {
+    dayNumber = 1;
+  } else if (currentDate.getTime() > endDate.getTime()) {
+    dayNumber = 9;
+  } else {
+    dayNumber = Math.min(
+      9,
+      Math.max(
+        1,
+        currentDate.getUTCHours() < 9 // day changes at 9AM UTC
+          ? currentDate.getUTCDate() - (await getStartDay())
+          : currentDate.getUTCDate() - (await getStartDay()) + 1
+      )
+    );
+  }
   if (args.length > 0) {
     dayNumber = parseInt(args[0]);
   }
@@ -71,7 +86,7 @@ async function execute(message, args, user) {
     return;
   }
 
-  if (dayNumber < 1 || dayNumber > 10) {
+  if (dayNumber < 1 || dayNumber > 9) {
     message.channel.send(
       errorMessage(`Could not find a schedule for day ${dayNumber}.`)
     );

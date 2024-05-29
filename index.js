@@ -25,10 +25,6 @@ if (ENABLE_SENTRY) {
 
 global.authorized_data_setters;
 global.team_roles_channels;
-//global.open = false;
-//global.guessOptions = false;
-//global.finalGame = false;
-//global.guessDict = false;
 global.guess_information;
 global.coolDown = false;
 
