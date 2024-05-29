@@ -50,7 +50,7 @@ async function execute(message, args, user) {
     //  value: "Send a link to the Quotes/Gag Awards/Reports form",
     //},
     {
-      name: `${PREFIX}guessmerlin {merlin}`,
+      name: `${PREFIX}guessmerlin|gm {merlin}`,
       value: "Submit a guess for a Merlin in a game",
     },
     {

@@ -54,9 +54,6 @@ async function execute(message, args, user) {
   const currentDate = new Date();
   const startDate = new Date(Date.UTC(YEAR, MONTH, START_DAY));
   const endDate = new Date(Date.UTC(YEAR, MONTH, START_DAY + 8));
-  console.log(currentDate.getTime());
-  console.log(startDate.getTime());
-  console.log(currentDate.getTime() < startDate.getTime());
   let dayNumber;
   if (currentDate.getTime() < startDate.getTime()) {
     dayNumber = 1;

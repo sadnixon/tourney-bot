@@ -1,6 +1,5 @@
 const _ = require("lodash");
 const { GoogleSpreadsheet } = require("google-spreadsheet");
-var Mutex = require("async-mutex").Mutex;
 const {
   SHEET_PRIVATE_ID,
   MOD_SHEET_PRIVATE_ID,
@@ -24,7 +23,6 @@ moddoc.useServiceAccountAuth(GOOGLE_API_CREDENTIALS);
 globaldoc.useServiceAccountAuth(GOOGLE_API_CREDENTIALS);
 
 let updateTime = new Date(new Date().getTime());
-const lineGuessMutex = new Mutex();
 
 async function loadSheet() {
   updateTime = new Date(new Date().getTime());
@@ -43,8 +41,8 @@ async function loadSheet() {
   await globaldoc.sheetsByIndex[6].loadCells("A1:O199");
 }
 
-setTimeout(loadSheet, 0);
-setInterval(loadSheet, 60000);
+//setTimeout(loadSheet, 0);
+//setInterval(loadSheet, 60000);
 
 function getUpdateTime() {
   return updateTime;
@@ -328,35 +326,6 @@ async function getGlobalPlayer(player) {
   return [canonName, currentInfo, pastInfo];
 }
 
-async function recordGuess(user, guess, game) {
-  const sheet = moddoc.sheetsByIndex[0];
-  const timestamp = new Date(new Date().getTime());
-  const release = await lineGuessMutex.acquire();
-  const rows = await sheet.getRows();
-  const gameNumber = await getGameNumber();
-  for (let i = rows.length - 1; i >= 0; i--) {
-    if (
-      rows[i]._rawData[1] === user &&
-      parseFloat(rows[i]._rawData[3]) === game
-    ) {
-      await rows[i].delete();
-      break;
-    } else if (
-      parseFloat(rows[i]._rawData[3]) !== game &&
-      game < gameNumber - 1
-    ) {
-      break;
-    } else if (
-      game > gameNumber - 2 &&
-      parseFloat(rows[i]._rawData[3]) === gameNumber - 2
-    ) {
-      break;
-    }
-  }
-  await sheet.addRow([timestamp, user, guess, game]);
-  release();
-}
-
 async function dumpGuesses(guesses) {
   const sheet = moddoc.sheetsByIndex[0];
   //var items = Object.keys(dict).map(function (key) {
@@ -384,6 +353,7 @@ async function dumpGuesses(guesses) {
 }
 
 module.exports = {
+  loadSheet,
   getLeaderboard,
   getGuessLeaderboard,
   getFantasyLeaderboard,
@@ -394,6 +364,5 @@ module.exports = {
   getPlayers,
   getGlobalPlayer,
   getUpdateTime,
-  recordGuess,
   dumpGuesses,
 };

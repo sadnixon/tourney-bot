@@ -68,6 +68,12 @@ async function getTournamentVCTextTwo() {
   return value ? value : "914274308359090238";
 }
 
+async function getGuildID() {
+  const value = await sheet_data.get("GUILD_ID");
+
+  return value? value: "748771888305668146";
+}
+
 async function getGlobalSheetUpdated() {
   const value = await sheet_data.get("GLOBAL_UPDATED");
 
@@ -83,6 +89,7 @@ module.exports = {
   getStartDay: getStartDay,
   getGameNumber: getGameNumber,
   getTournamentVCTextTwo: getTournamentVCTextTwo,
+  getGuildID: getGuildID,
   getGlobalSheetUpdated: getGlobalSheetUpdated,
   sheet_data: sheet_data,
   GLOBAL_SHEET_URL:

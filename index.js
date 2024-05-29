@@ -12,9 +12,10 @@ const {
   ENABLE_SENTRY,
   OWNER,
 } = require("./env");
-const { errorMessage } = require("./message-helpers");
+const { errorMessage, alertMessage } = require("./message-helpers");
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
+var cron = require("node-cron");
 
 if (ENABLE_SENTRY) {
   Sentry.init({
@@ -59,7 +60,43 @@ for (const file of commandFiles) {
 client.once("ready", () => {
   client.user.setActivity(`${PREFIX}info`, { type: "WATCHING" });
   console.log("Ready!");
+  scheduler();
 });
+
+async function scheduler() {
+  await sheet.loadSheet();
+  //setTimeout(loadSheet, 0);
+  setInterval(sheet.loadSheet, 60000);
+  const game_schedule = await sheet.getSchedule();
+  const current_date = new Date();
+  for (let i = 0; i < game_schedule.length; i++) {
+    for (let j = 0; j < game_schedule[i].games.length; j++) {
+      const game_time = game_schedule[i].games[j].time;
+      const before_game = new Date(game_time - 20 * 60000);
+      if (
+        before_game.getTime() > current_date.getTime() &&
+        !(
+          i === game_schedule.length - 1 &&
+          j === game_schedule[i].games.length - 1
+        )
+      ) {
+        const minute = before_game.getUTCMinutes();
+        const hour = before_game.getUTCHours();
+        const date = before_game.getUTCDate();
+        const month = before_game.getUTCMonth();
+        cron.schedule(
+          `${minute} ${hour} ${date} ${month} *`,
+          () => {
+            alertMessage(client, true);
+          },
+          {
+            timezone: "UTC",
+          }
+        );
+      }
+    }
+  }
+}
 
 client.on("message", async (message) => {
   if (!message.content.startsWith(PREFIX) || message.author.bot) return;
@@ -71,7 +108,9 @@ client.on("message", async (message) => {
   if (!(await team_roles_channels.get("teams"))) {
     await team_roles_channels.set("teams", []);
   }
-
+  if (!(await team_roles_channels.get("mod_team"))) {
+    await team_roles_channels.set("mod_team", []);
+  }
   if (!(await guess_information.get("open"))) {
     await guess_information.set("open", false);
   }
