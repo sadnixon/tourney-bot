@@ -92,7 +92,7 @@ async function execute(message, args, user) {
                   playerInfo[1][6]
                 } pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
               : //Case where player has only present records
-                `**Rookie Tourney**\n\nT8: ${playerInfo[1][0]} - ${
+                `**Rookie Tourney**\n\nT9: ${playerInfo[1][0]} - ${
                   playerInfo[1][6]
                 } pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
             : //Case where player has only past records
