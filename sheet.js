@@ -30,12 +30,12 @@ async function loadSheet() {
   await doc.sheetsByIndex[0].loadCells("B3:C14"); //The borders of the Leaderboard on main sheet
   //await doc.sheetsByIndex[4].loadCells("B3:F47"); //The borders of the Schedule on main sheet
   await doc.sheetsByIndex[1].loadCells("B2:Y44"); //The relevant portion of the Main Scoreboard, including the leaderboard
-  await doc.sheetsByIndex[2].loadCells("A1:I65"); //The borders of the Personal Scores Block
-  await doc.sheetsByIndex[6].loadCells("A5:H46"); //The lefthand portion of the Fantasy League
+  await doc.sheetsByIndex[2].loadCells("A1:I64"); //The borders of the Personal Scores Block
+  await doc.sheetsByIndex[3].loadCells("D51:H91"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
   await moddoc.sheetsByIndex[0].loadCells("A1:G2000");
   await moddoc.sheetsByIndex[1].loadCells("A1:C200");
-  await moddoc.sheetsByIndex[2].loadCells("C1:H60");
+  await moddoc.sheetsByIndex[2].loadCells("A1:H42");
   await globaldoc.loadInfo();
   await globaldoc.sheetsByIndex[3].loadCells("A2:CI191");
   await globaldoc.sheetsByIndex[6].loadCells("A1:O199");
@@ -68,16 +68,16 @@ async function getGuessLeaderboard() {
 }
 
 async function getFantasyLeaderboard() {
-  const sheet = doc.sheetsByIndex[6];
-  const leaderboard = _.range(5, 46, 1).map((row) => ({
+  const sheet = doc.sheetsByIndex[3];
+  const leaderboard = _.range(51, 91, 1).map((row) => ({
     mod: "",
-    team: sheet.getCellByA1(`C${row}`).value,
-    name: sheet.getCellByA1(`D${row}`).value,
-    score: sheet.getCellByA1(`E${row}`).value,
-    gamesWon: sheet.getCellByA1(`H${row}`).value,
+    team: sheet.getCellByA1(`E${row}`).value,
+    name: sheet.getCellByA1(`F${row}`).value,
+    score: sheet.getCellByA1(`H${row}`).value,
+    games: sheet.getCellByA1(`G${row}`).value,
     pointsPerGame:
       Math.round(
-        (sheet.getCellByA1(`E${row}`).value /
+        (sheet.getCellByA1(`H${row}`).value /
           sheet.getCellByA1(`G${row}`).value) *
           100
       ) / 100,

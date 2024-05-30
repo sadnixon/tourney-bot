@@ -23,6 +23,14 @@ async function execute(message, args, user) {
         )
         .setFooter(`Updated ${user.updateTime}`);
       return message.channel.send(embed);
+    } else if (args.join("").toLowerCase() === "tomsy") {
+      const embed = new Discord.MessageEmbed()
+        .setTitle("Tomsy Statistics")
+        .setDescription(
+          "**Who?**"
+        )
+        .setFooter(`Updated ${user.updateTime}`);
+      return message.channel.send(embed);
     }
     const GlobalSheetUpdated = await getGlobalSheetUpdated();
     try {
@@ -30,14 +38,14 @@ async function execute(message, args, user) {
         args.join("").toLowerCase()
       );
 
-      if (playerInfo[1].length === 0 && playerInfo[2].length === 0) {
+      if ((playerInfo[1].length === 0 && playerInfo[2].length === 0) || playerInfo[2][3] === "Personal Score") {
         return message.channel.send(
           errorMessage(
             "😔 There was an error making your request. You may have entered an incorrect player name."
           )
         );
       }
-      const tourneyNames = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8"];
+      const tourneyNames = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9"];
       const wins = playerInfo[2][33] || 0; //Must be the number of the global sheet column for tourney 1sts
       let tourneyIndices = [];
       if (playerInfo[2].length > 0) {
@@ -80,7 +88,7 @@ async function execute(message, args, user) {
                       })`
                   )
                   .join("\n") +
-                `\nT8: ${playerInfo[1][0]} - ${
+                `\nT9: ${playerInfo[1][0]} - ${
                   playerInfo[1][6]
                 } pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
               : //Case where player has only present records

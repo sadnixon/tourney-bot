@@ -14,6 +14,9 @@ async function execute(message, args, user) {
     }
     const leaderboard = await sheet.getFantasyLeaderboard();
     let noModLeaderboard = leaderboard.filter((entry) => entry.mod !== "mod");
+    noModLeaderboard = noModLeaderboard.filter(
+      (entry) => entry.score > 0 || entry.games > 0
+    );
     ppg
       ? noModLeaderboard.sort(
           (a, b) => b.pointsPerGame - a.pointsPerGame || b.score - a.score
@@ -34,16 +37,18 @@ async function execute(message, args, user) {
           : "Fantasy League Leaderboard"
       )
       .setDescription(
-        noModLeaderboard
-          .slice(0, playerNumber)
-          .map(
-            ppg
-              ? (entry, i) =>
-                  `${ranks[i]}\\. <@${entry.name}>'s ${entry.team}: ${entry.pointsPerGame}`
-              : (entry, i) =>
-                  `${ranks[i]}\\. <@${entry.name}>'s ${entry.team}: ${entry.score}`
-          )
-          .join("\n")
+        noModLeaderboard.length > 0
+          ? noModLeaderboard
+              .slice(0, playerNumber)
+              .map(
+                ppg
+                  ? (entry, i) =>
+                      `${ranks[i]}\\. <@${entry.name}>'s ${entry.team}: ${entry.pointsPerGame}`
+                  : (entry, i) =>
+                      `${ranks[i]}\\. <@${entry.name}>'s ${entry.team}: ${entry.score}`
+              )
+              .join("\n")
+          : "This list will populate once games have been played."
       )
       .setFooter(
         ppg
