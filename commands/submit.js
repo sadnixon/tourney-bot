@@ -24,7 +24,7 @@ async function execute(message, args, user) {
         await award_information.get(args[0].toLowerCase())
       ).concat([[timestamp, message.author.username, args[1], parseInt(args[2])]])
     );
-    message.channel.send(`Award Nomination recieved! Thank you, <@${message.author.id}>.`)
+    message.channel.send(`Award Nomination received! Thank you, <@${message.author.id}>.`)
   } else {
     message.channel.send(
       errorMessage(
