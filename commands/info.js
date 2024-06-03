@@ -45,13 +45,13 @@ async function execute(message, args, user) {
       name: `${PREFIX}global`,
       value: "Send a link to the official global tourney Google sheet",
     },
-    //{
-    //  name: `${PREFIX}submit`,
-    //  value: "Send a link to the Quotes/Gag Awards/Reports form",
-    //},
     {
       name: `${PREFIX}guessmerlin|gm {merlin}`,
       value: "Submit a guess for a Merlin in a game",
+    },
+    {
+      name: `${PREFIX}submit`,
+      value: "Nominate a player for one of the end-of-tourney awards",
     },
     {
       name: `${PREFIX}info|help`,

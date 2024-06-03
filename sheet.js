@@ -36,6 +36,7 @@ async function loadSheet() {
   await moddoc.sheetsByIndex[0].loadCells("A1:G2000");
   await moddoc.sheetsByIndex[1].loadCells("A1:C200");
   await moddoc.sheetsByIndex[2].loadCells("A1:H42");
+  await moddoc.sheetsByIndex[3].loadCells("A1:E200");
   await globaldoc.loadInfo();
   await globaldoc.sheetsByIndex[3].loadCells("A2:CI191");
   await globaldoc.sheetsByIndex[6].loadCells("A1:O199");
@@ -352,6 +353,24 @@ async function dumpGuesses(guesses) {
   }
 }
 
+async function dumpAwards() {
+  const sheet = moddoc.sheetsByIndex[3];
+  const award_list = [
+    "assassin",
+    "morgana",
+    "merlin",
+    "percival",
+    "vt",
+    "shot",
+  ];
+  for (var award of award_list) {
+    const noms = await award_information.get(award);
+    for (var nom of noms) {
+      await sheet.addRow(nom.concat([award]));
+    }
+  }
+}
+
 module.exports = {
   loadSheet,
   getLeaderboard,
@@ -365,4 +384,5 @@ module.exports = {
   getGlobalPlayer,
   getUpdateTime,
   dumpGuesses,
+  dumpAwards,
 };

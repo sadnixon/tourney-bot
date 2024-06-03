@@ -27,6 +27,7 @@ if (ENABLE_SENTRY) {
 global.authorized_data_setters;
 global.team_roles_channels;
 global.guess_information;
+global.award_information;
 global.coolDown = false;
 
 if (ENABLE_DB) {
@@ -39,10 +40,14 @@ if (ENABLE_DB) {
   guess_information = new Keyv("mongodb://localhost:27017/tourney-bot", {
     namespace: "guess_information",
   });
+  award_information = new Keyv("mongodb://localhost:27017/tourney-bot", {
+    namespace: "award_information",
+  });
 } else {
   authorized_data_setters = new Keyv();
   team_roles_channels = new Keyv();
   guess_information = new Keyv();
+  award_information = new Keyv();
 }
 
 client.commands = new Discord.Collection();
@@ -122,6 +127,25 @@ client.on("message", async (message) => {
   }
   if (!(await guess_information.get("guessIDs"))) {
     await guess_information.set("guessIDs", []);
+  }
+
+  if (!(await award_information.get("vt"))) {
+    await award_information.set("vt", []);
+  }
+  if (!(await award_information.get("percival"))) {
+    await award_information.set("percival", []);
+  }
+  if (!(await award_information.get("merlin"))) {
+    await award_information.set("merlin", []);
+  }
+  if (!(await award_information.get("assassin"))) {
+    await award_information.set("assassin", []);
+  }
+  if (!(await award_information.get("morgana"))) {
+    await award_information.set("morgana", []);
+  }
+  if (!(await award_information.get("shot"))) {
+    await award_information.set("shot", []);
   }
 
   const isAuthorized =
