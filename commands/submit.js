@@ -29,7 +29,7 @@ async function execute(message, args, user) {
   } else {
     message.channel.send(
       errorMessage(
-        "Must include an award category, a player name, and a game number in that order. For example: `s!submit vt SadNixon 32`\n\n The award categories are `vt`, `percival`, `merlin`, `morgana`, `assassin`, and `shot`."
+        "Must include an award category, a player name, and a game number in that order. For example: `s!submit vt SadNixon 32`\n\n The award categories are `vt`, `percival`, `merlin`, `morgana`, `assassin`, `shot`, and `robbed`."
       )
     );
   }
