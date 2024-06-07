@@ -362,6 +362,7 @@ async function dumpAwards() {
     "percival",
     "vt",
     "shot",
+    "robbed",
   ];
   for (var award of award_list) {
     const noms = await award_information.get(award);

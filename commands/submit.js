@@ -9,6 +9,7 @@ async function execute(message, args, user) {
     "percival",
     "vt",
     "shot",
+    "robbed",
   ];
   const gameNumber = await getGameNumber();
   const timestamp = new Date(new Date().getTime());

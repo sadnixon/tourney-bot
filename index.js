@@ -147,6 +147,9 @@ client.on("message", async (message) => {
   if (!(await award_information.get("shot"))) {
     await award_information.set("shot", []);
   }
+  if (!(await award_information.get("robbed"))) {
+    await award_information.set("robbed", []);
+  }
 
   const isAuthorized =
     (await authorized_data_setters.get("auth")).indexOf(message.author.id) >=
