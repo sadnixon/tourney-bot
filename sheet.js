@@ -373,7 +373,7 @@ async function dumpAwards() {
   console.log(await award_information.get("robbed"));
   let all_noms = [];
   for (const award of award_list) {
-    all_noms.concat(await award_information.get(award));
+    all_noms = all_noms.concat(await award_information.get(award));
   }
   console.log(all_noms);
   console.log(all_noms.length);
