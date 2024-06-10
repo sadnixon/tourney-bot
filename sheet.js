@@ -369,9 +369,10 @@ async function dumpAwards() {
     all_noms = all_noms.concat((await award_information.get(award)).map((e) => e.concat([award])));
   }
   console.log(all_noms);
-  for (const nom of all_noms) {
-    await sheet.addRow(nom);
-  }
+  await sheet.addRows(all_noms);
+  //for (const nom of all_noms) {
+  //  await sheet.addRow(nom);
+  //}
 
   //for (var award of award_list) {
   //  const noms = await award_information.get(award);
