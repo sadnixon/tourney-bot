@@ -364,12 +364,22 @@ async function dumpAwards() {
     "shot",
     "robbed",
   ];
-  for (var award of award_list) {
-    const noms = await award_information.get(award);
-    for (var nom of noms) {
-      await sheet.addRow(nom.concat([award]));
-    }
+  let all_noms = [];
+  for (const award of award_list) {
+    all_noms.concat(await award_information.get(award));
   }
+  console.log(all_noms);
+  console.log(all_noms.length);
+  for (const nom of all_noms) {
+    await sheet.addRow(nom.concat([award]));
+  }
+
+  //for (var award of award_list) {
+  //  const noms = await award_information.get(award);
+  //  for (var nom of noms) {
+  //    await sheet.addRow(nom.concat([award]));
+  //  }
+  //}
 }
 
 module.exports = {
