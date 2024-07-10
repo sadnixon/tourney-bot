@@ -37,7 +37,7 @@ async function execute(message, args, user) {
   } else if (currentGame.number === gameNumber - 1 && args.length === 1) {
     message.channel.send(
       errorMessage(
-        "Must include a valid game number, for example, s!guess 123h 59."
+        "Must include a valid game number, for example, s!guess 1234567 59."
       )
     );
   } else if (

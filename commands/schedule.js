@@ -8,11 +8,13 @@ const { formatDistanceToNow } = require("date-fns");
 async function scheduleEmbed(dayNumber, footer) {
   const currentDate = new Date();
   const schedule = await sheet.getSchedule();
+  console.log(schedule);
 
   const daySchedule = schedule.find(
     (day) => day.number === parseInt(dayNumber)
   );
   const games = await sheet.getGames();
+  console.log(games);
   return new Discord.MessageEmbed()
     .setTitle(
       `Day ${dayNumber}: ${format(
@@ -78,7 +80,7 @@ async function scheduleEmbed(dayNumber, footer) {
 async function execute(message, args, user) {
   const currentDate = new Date();
   let dayNumber = Math.min(
-    12,
+    10,
     Math.max(
       1,
       currentDate.getUTCHours() < 9 // day changes at 9AM UTC
@@ -99,7 +101,7 @@ async function execute(message, args, user) {
     return;
   }
 
-  if (dayNumber < 1 || dayNumber > 12) {
+  if (dayNumber < 1 || dayNumber > 10) {
     message.channel.send(
       errorMessage(`Could not find a schedule for day ${dayNumber}.`)
     );
@@ -122,7 +124,7 @@ async function execute(message, args, user) {
       if (reaction.emoji.name === "◀") {
         dayNumber = Math.max(dayNumber - 1, 1);
       } else {
-        dayNumber = Math.min(dayNumber + 1, 12);
+        dayNumber = Math.min(dayNumber + 1, 10);
       }
       const newEmbed = await scheduleEmbed(dayNumber, footer);
       emb.edit(newEmbed);

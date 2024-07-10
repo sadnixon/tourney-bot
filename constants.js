@@ -20,7 +20,7 @@ async function getYear() {
 async function getMonth() {
   const value = await sheet_data.get("MONTH");
 
-  return value ? value : 0;
+  return value ? value : 6;
 }
 
 async function getTeamEmojis() {
@@ -54,19 +54,25 @@ async function getFormURL() {
 async function getStartDay() {
   const value = await sheet_data.get("START_DAY");
 
-  return value ? value : 3;
+  return value ? value : 12;
 }
 
 async function getGameNumber() {
   const value = await sheet_data.get("GAME_NUMBER");
 
-  return value ? value : 50;
+  return value ? value : 54;
 }
 
 async function getTournamentVCTextTwo() {
   const value = await sheet_data.get("VC_TEXT_2_ID");
 
   return value ? value : "914274308359090238";
+}
+
+async function getGuildID() {
+  const value = await sheet_data.get("GUILD_ID");
+
+  return value? value: "748771888305668146";
 }
 
 module.exports = {
@@ -78,6 +84,7 @@ module.exports = {
   getStartDay: getStartDay,
   getGameNumber: getGameNumber,
   getTournamentVCTextTwo: getTournamentVCTextTwo,
+  getGuildID: getGuildID,
   sheet_data: sheet_data,
   GLOBAL_SHEET_URL:
     "https://docs.google.com/spreadsheets/d/1au5YS0hmneOv8kEA75VOxgcPIUya2EB19hWXl7oII-A/",

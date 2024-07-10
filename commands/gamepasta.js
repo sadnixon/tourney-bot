@@ -16,14 +16,14 @@ async function execute(message, args, user) {
     const games2 = await sheet.getGames();
     const currentGame = games2.find((g) => !g.played);
     const schedule = await sheet.getSchedule();
-    const gametypes = _.range(0, 12)
+    const gametypes = _.range(0, 10)
       .map((day) => schedule[day].games)
       .flat();
     const currentType = gametypes
       .filter((entry) => entry !== null)
       .find((g) => g.number === currentGame.number).type;
     for (var channel of channels) {
-      if (["VC", "SpecialVC"].includes(currentType)) {
+      if (["VC", "VC+", "SpecialVC"].includes(currentType)) {
         message.guild.channels.cache
           .get(channel)
           .send(

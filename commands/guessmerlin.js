@@ -26,7 +26,7 @@ async function execute(message, args, user) {
     );
   } else if (
     !(await guess_information.get("openSpecial")) ||
-    !["AvalonSH", "AvalonSH+", "AvalonSpecial"].includes(currentGame.mode)
+    !["AvalonSH", "AvalonSH+", "AvalonSHSpecial"].includes(currentGame.mode)
   ) {
     message.channel.send(
       errorMessage(
