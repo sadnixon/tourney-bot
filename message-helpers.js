@@ -50,7 +50,7 @@ async function alertMessage(client, mods = false) {
   const games2 = await sheet.getGames();
   const currentGame = games2.find((g) => !g.played);
   const schedule = await sheet.getSchedule();
-  const gametimes = _.range(0, 9)
+  const gametimes = _.range(0, 10)
     .map((day) => schedule[day].games)
     .flat();
   const currentTime = gametimes
