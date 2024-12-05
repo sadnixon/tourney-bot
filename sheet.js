@@ -14,7 +14,6 @@ const {
   getGlobalSheetUpdated,
 } = require("./constants");
 
-// this is the 4th SH Tourney spreadsheet
 const doc = new GoogleSpreadsheet(SHEET_PRIVATE_ID);
 const moddoc = new GoogleSpreadsheet(MOD_SHEET_PRIVATE_ID);
 const globaldoc = new GoogleSpreadsheet(GLOBAL_SHEET_PRIVATE_ID);
@@ -27,19 +26,18 @@ let updateTime = new Date(new Date().getTime());
 async function loadSheet() {
   updateTime = new Date(new Date().getTime());
   await doc.loadInfo();
-  await doc.sheetsByIndex[0].loadCells("B3:C14"); //The borders of the Leaderboard on main sheet
-  //await doc.sheetsByIndex[4].loadCells("B3:F47"); //The borders of the Schedule on main sheet
-  await doc.sheetsByIndex[1].loadCells("B2:Y44"); //The relevant portion of the Main Scoreboard, including the leaderboard
-  await doc.sheetsByIndex[2].loadCells("A1:I64"); //The borders of the Personal Scores Block
-  await doc.sheetsByIndex[3].loadCells("D54:H97"); //The lefthand portion of the Fantasy League
+  await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:D14"); //The borders of the Leaderboard on main sheet
+  await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:Y53"); //The relevant portion of the Main Scoreboard, including the leaderboard
+  await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J76"); //The borders of the Personal Scores Block
+  await doc.sheetsByTitle["Fantasy"].loadCells("D54:H97"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
-  await moddoc.sheetsByIndex[0].loadCells("A1:G2000");
-  await moddoc.sheetsByIndex[1].loadCells("A1:C200");
-  await moddoc.sheetsByIndex[2].loadCells("A1:H42");
-  await moddoc.sheetsByIndex[3].loadCells("A1:E200");
+  await moddoc.sheetsByTitle["Guesses"].loadCells("A1:G2000");
+  await moddoc.sheetsByTitle["Personal Scores"].loadCells("A1:C200");
+  await moddoc.sheetsByTitle["Guesses Per Game"].loadCells("A1:H52");
+  await moddoc.sheetsByTitle["Awards"].loadCells("A1:E200");
   await globaldoc.loadInfo();
-  await globaldoc.sheetsByIndex[3].loadCells("A2:CI191");
-  await globaldoc.sheetsByIndex[6].loadCells("A1:O199");
+  await globaldoc.sheetsByTitle["Personal Stats Overall"].loadCells("A2:EA206");
+  await globaldoc.sheetsByTitle["Names Correspondance"].loadCells("A1:S214");
 }
 
 //setTimeout(loadSheet, 0);
@@ -50,16 +48,17 @@ function getUpdateTime() {
 }
 
 async function getLeaderboard() {
-  const sheet = doc.sheetsByIndex[0];
+  const sheet = doc.sheetsByTitle["Short Scoreboard + Player List"];
   const leaderboard = _.range(0, 6).map((row) => ({
     name: sheet.getCellByA1(`B${3 + row * 2}`).value, //Column has to be leftmost column of leaderboard
     score: sheet.getCellByA1(`C${3 + row * 2}`).value, //Number has to be the position of the top score in the Reformat block
+    gamesWon: sheet.getCellByA1(`D${3 + row * 2}`).value,
   }));
   return leaderboard;
 }
 
 async function getGuessLeaderboard() {
-  const sheet = moddoc.sheetsByIndex[1];
+  const sheet = moddoc.sheetsByTitle["Personal Scores"];
   const leaderboard = _.range(2, 200, 1).map((row) => ({
     name: sheet.getCellByA1(`A${row}`).value,
     score: sheet.getCellByA1(`B${row}`).value,
@@ -69,7 +68,7 @@ async function getGuessLeaderboard() {
 }
 
 async function getFantasyLeaderboard() {
-  const sheet = doc.sheetsByIndex[3];
+  const sheet = doc.sheetsByTitle["Fantasy"];
   const leaderboard = _.range(54, 97, 1).map((row) => ({
     mod: "",
     team: sheet.getCellByA1(`E${row}`).value,
@@ -87,7 +86,7 @@ async function getFantasyLeaderboard() {
 }
 
 async function getPersonalStats(player) {
-  const sheet = moddoc.sheetsByIndex[0];
+  const sheet = moddoc.sheetsByTitle["Guesses"];
   return _.range(1, 2000)
     .map((row) => {
       if (
@@ -106,8 +105,8 @@ async function getPersonalStats(player) {
 }
 
 async function getBestGuess(game) {
-  const sheet = moddoc.sheetsByIndex[0];
-  const sheet2 = moddoc.sheetsByIndex[2];
+  const sheet = moddoc.sheetsByTitle["Guesses"];
+  const sheet2 = moddoc.sheetsByTitle["Guesses Per Game"];
   let guesserList = [];
   for (let i = 2; i < 2000; i++) {
     if (sheet.getCellByA1(`A${i}`).value === null) break;
@@ -129,10 +128,10 @@ async function getBestGuess(game) {
 }
 
 async function getSchedule() {
-  const sheet = doc.sheetsByIndex[1];
+  const sheet = doc.sheetsByTitle["Main Scoreboard"];
   //await sheet.loadCells("A1:S23");
-  const dayGames = [6, 6, 3, 3, 3, 3, 4, 6, 6];
-  const dayNames = _.range(0, 9).map(
+  const dayGames = [5, 6, 6, 4, 4, 4, 4, 5, 6, 6];
+  const dayNames = _.range(0, 10).map(
     (num) =>
       sheet.getCellByA1(
         `B${dayGames.slice(0, num).reduce((a, b) => a + b, 0) + 4}`
@@ -148,6 +147,7 @@ async function getSchedule() {
     V: "VC",
     "V+": "VC +",
     A: "Anonymous",
+    "A+": "Anonymous +",
     B: "Bullet",
     "B+": "Bullet +"
   };
@@ -187,10 +187,11 @@ async function getSchedule() {
 }
 
 async function getGames() {
-  const sheet = doc.sheetsByIndex[1];
+  const sheet = doc.sheetsByTitle["Main Scoreboard"];
   const emojis = await getTeamEmojis();
   const modeNames = {
     R: "Regular",
+    T: "Timer Regular",
     D: "Duo",
     "D+": "Duo +",
     S: "Special",
@@ -198,7 +199,9 @@ async function getGames() {
     V: "VC",
     "V+": "VC +",
     A: "Anonymous",
+    "A+": "Anonymous +",
     B: "Bullet",
+    "B+": "Bullet +"
   };
   const gameNumber = await getGameNumber();
   return _.range(0, gameNumber) //Has to be one more than the number of rows in Inporter
@@ -254,29 +257,29 @@ async function getGames() {
 }
 
 async function getPlayers() {
-  const sheet = doc.sheetsByIndex[2];
+  const sheet = doc.sheetsByTitle["Personal Scores + Stats"];
   const players = [];
   let teamName = "";
-  for (let i = 0; i < 10 * 6; i++) {
-    teamName = sheet.getCell(i + 3, 1).value || teamName;
+  for (let i = 0; i < 12 * 6; i++) {
+    teamName = sheet.getCell(i + 4, 1).value || teamName;
     players.push({
-      name: sheet.getCell(i + 3, 2).value,
+      name: sheet.getCell(i + 4, 2).value,
       teamName,
-      gamesPlayed: sheet.getCell(i + 3, 3).value,
-      gamesWon: sheet.getCell(i + 3, 4).value,
-      winrate: sheet.getCell(i + 3, 5).value,
-      personalScore: sheet.getCell(i + 3, 8).value,
+      gamesPlayed: sheet.getCell(i + 4, 3).value,
+      gamesWon: sheet.getCell(i + 4, 4).value,
+      winrate: sheet.getCell(i + 4, 5).value,
+      personalScore: sheet.getCell(i + 4, 9).value,
     });
   }
   return players;
 }
 
 async function getGlobalPlayer(player) {
-  const names = globaldoc.sheetsByIndex[6];
+  const names = globaldoc.sheetsByTitle["Names Correspondance"];
   const namerows = await names.getRows();
-  const sheet = globaldoc.sheetsByIndex[3];
+  const sheet = globaldoc.sheetsByTitle["Personal Stats Overall"];
   const rows = await sheet.getRows();
-  const currentsheet = doc.sheetsByIndex[2];
+  const currentsheet = doc.sheetsByTitle["Personal Scores + Stats"];
   const GlobalSheetUpdated = await getGlobalSheetUpdated();
   let canonName = "";
   let globalIndex = 0;
@@ -284,7 +287,7 @@ async function getGlobalPlayer(player) {
   let currentInfo = [];
   let pastInfo = [];
   for (let i = 1; i < namerows.length + 1; i++) {
-    for (let j = 11; j < 15; j++) {
+    for (let j = 14; j < 19; j++) {
       // The first number is the index of the Name 1 column, the second is the one plus the index of the Name 4 column
       if (names.getCell(i, j).value === null) {
         break;
@@ -293,17 +296,17 @@ async function getGlobalPlayer(player) {
       if (names.getCell(i, j).value.toLowerCase() === player) {
         canonName = names.getCell(i, 0).value;
         globalIndex = i;
-        if (names.getCell(i, 9).value !== null) {
-          currentName = names.getCell(i, 9).value;
+        if (names.getCell(i, 12).value !== null) {
+          currentName = names.getCell(i, 12).value;
           let teamName = "";
-          for (let k = 0; k < 10 * 6; k++) {
+          for (let k = 0; k < 12 * 6; k++) {
             // It has to be the number of players in each team times six
-            teamName = currentsheet.getCell(k + 3, 1).value || teamName;
-            if (currentsheet.getCell(k + 3, 2).value === currentName) {
+            teamName = currentsheet.getCell(k + 4, 1).value || teamName;
+            if (currentsheet.getCell(k + 4, 2).value === currentName) {
               currentInfo.push(
                 teamName,
-                ..._.range(3, 9).map(
-                  (entry) => currentsheet.getCell(k + 3, entry).value
+                ..._.range(3, 10).map(
+                  (entry) => currentsheet.getCell(k + 4, entry).value
                 )
               );
               break;
@@ -319,7 +322,7 @@ async function getGlobalPlayer(player) {
   }
   if (globalIndex < rows.length) {
     pastInfo.push(
-      ..._.range(0, 87 + GlobalSheetUpdated * 6).map(
+      ..._.range(0, 131 + GlobalSheetUpdated * 6).map(
         (entry) => sheet.getCell(globalIndex + 1, entry).value
       ) // Has to be the number of columns in the Global Sheet
     );
@@ -328,7 +331,7 @@ async function getGlobalPlayer(player) {
 }
 
 async function dumpGuesses(guesses) {
-  const sheet = moddoc.sheetsByIndex[0];
+  const sheet = moddoc.sheetsByTitle["Guesses"];
   //var items = Object.keys(dict).map(function (key) {
   //  return dict[key];
   //});
@@ -354,7 +357,7 @@ async function dumpGuesses(guesses) {
 }
 
 async function dumpAwards() {
-  const sheet = moddoc.sheetsByIndex[3];
+  const sheet = moddoc.sheetsByTitle["Awards"];
   const award_list = [
     "assassin",
     "morgana",

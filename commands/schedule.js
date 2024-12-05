@@ -58,10 +58,10 @@ async function execute(message, args, user) {
   if (currentDate.getTime() < startDate.getTime()) {
     dayNumber = 1;
   } else if (currentDate.getTime() > endDate.getTime()) {
-    dayNumber = 9;
+    dayNumber = 10;
   } else {
     dayNumber = Math.min(
-      9,
+      10,
       Math.max(
         1,
         currentDate.getUTCHours() < 9 // day changes at 9AM UTC
@@ -83,7 +83,7 @@ async function execute(message, args, user) {
     return;
   }
 
-  if (dayNumber < 1 || dayNumber > 9) {
+  if (dayNumber < 1 || dayNumber > 10) {
     message.channel.send(
       errorMessage(`Could not find a schedule for day ${dayNumber}.`)
     );

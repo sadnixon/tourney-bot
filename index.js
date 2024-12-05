@@ -89,6 +89,7 @@ async function scheduler() {
         const hour = before_game.getUTCHours();
         const date = before_game.getUTCDate();
         const month = before_game.getUTCMonth();
+        //console.log(`${minute} ${hour} ${date} ${month+1} *`);
         cron.schedule(
           `${minute} ${hour} ${date} ${month+1} *`,
           () => {
