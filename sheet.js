@@ -29,7 +29,7 @@ async function loadSheet() {
   await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:D14"); //The borders of the Leaderboard on main sheet
   await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:Y53"); //The relevant portion of the Main Scoreboard, including the leaderboard
   await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J76"); //The borders of the Personal Scores Block
-  await doc.sheetsByTitle["Fantasy"].loadCells("D54:H97"); //The lefthand portion of the Fantasy League
+  await doc.sheetsByTitle["Fantasy"].loadCells("D57:H102"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
   await moddoc.sheetsByTitle["Guesses"].loadCells("A1:G2000");
   await moddoc.sheetsByTitle["Personal Scores"].loadCells("A1:C200");
@@ -37,7 +37,48 @@ async function loadSheet() {
   await moddoc.sheetsByTitle["Awards"].loadCells("A1:E200");
   await globaldoc.loadInfo();
   await globaldoc.sheetsByTitle["Personal Stats Overall"].loadCells("A2:EA206");
-  await globaldoc.sheetsByTitle["Names Correspondance"].loadCells("A1:S214");
+  //await globaldoc.sheetsByTitle["Names Correspondance"].loadCells("A1:S214");
+}
+
+async function nameSheetLoader() {
+  await globaldoc.loadInfo();
+  await globaldoc.sheetsByTitle["Names Correspondance"].loadCells("A1:T214");
+  const names = globaldoc.sheetsByTitle["Names Correspondance"];
+  const namerows = await names.getRows();
+  const namecolumns = ["O", "P", "Q", "R", "S"];
+
+  await ids_dictionary.clear();
+  await names_dictionary.clear();
+
+  for (let i = 2; i < namerows.length + 2; i++) {
+    for (const j of namecolumns) {
+      if (names.getCellByA1(`${j}${i}`).value === null) {
+        break;
+      }
+      await names_dictionary.set(
+        names.getCellByA1(`${j}${i}`).value.toString().toLowerCase(),
+        {
+          global: names.getCellByA1(`A${i}`).value.toString(),
+          current: names.getCellByA1(`M${i}`).value
+            ? names.getCellByA1(`M${i}`).value.toString()
+            : null,
+          index: i - 1,
+          discord: names.getCellByA1(`M${i}`).value
+            ? names.getCellByA1(`T${i}`).value.toString()
+            : null,
+        }
+      );
+    }
+    if (names.getCellByA1(`T${i}`).value !== null) {
+      await ids_dictionary.set(names.getCellByA1(`T${i}`).value.toString(), {
+        global: names.getCellByA1(`A${i}`).value.toString(),
+        current: names.getCellByA1(`M${i}`).value
+          ? names.getCellByA1(`M${i}`).value.toString()
+          : null,
+        index: i - 1,
+      });
+    }
+  }
 }
 
 //setTimeout(loadSheet, 0);
@@ -69,7 +110,7 @@ async function getGuessLeaderboard() {
 
 async function getFantasyLeaderboard() {
   const sheet = doc.sheetsByTitle["Fantasy"];
-  const leaderboard = _.range(54, 97, 1).map((row) => ({
+  const leaderboard = _.range(57, 103, 1).map((row) => ({
     mod: "",
     team: sheet.getCellByA1(`E${row}`).value,
     name: sheet.getCellByA1(`F${row}`).value,
@@ -149,7 +190,7 @@ async function getSchedule() {
     A: "Anonymous",
     "A+": "Anonymous +",
     B: "Bullet",
-    "B+": "Bullet +"
+    "B+": "Bullet +",
   };
 
   const YEAR = await getYear();
@@ -201,7 +242,7 @@ async function getGames() {
     A: "Anonymous",
     "A+": "Anonymous +",
     B: "Bullet",
-    "B+": "Bullet +"
+    "B+": "Bullet +",
   };
   const gameNumber = await getGameNumber();
   return _.range(0, gameNumber) //Has to be one more than the number of rows in Inporter
@@ -274,6 +315,42 @@ async function getPlayers() {
   return players;
 }
 
+async function getGlobalPlayer2(player) {
+  const sheet = globaldoc.sheetsByTitle["Personal Stats Overall"];
+  const rows = await sheet.getRows();
+  const currentsheet = doc.sheetsByTitle["Personal Scores + Stats"];
+  const GlobalSheetUpdated = await getGlobalSheetUpdated();
+  let canonName = player.global;
+  let globalIndex = player.index;
+  let currentName = player.current;
+  let currentInfo = [];
+  let pastInfo = [];
+  let teamName = "";
+  if (currentName) {
+    for (let k = 0; k < 12 * 6; k++) {
+      // It has to be the number of players in each team times six
+      teamName = currentsheet.getCell(k + 4, 1).value || teamName;
+      if (currentsheet.getCell(k + 4, 2).value === currentName) {
+        currentInfo.push(
+          teamName,
+          ..._.range(3, 10).map(
+            (entry) => currentsheet.getCell(k + 4, entry).value
+          )
+        );
+        break;
+      }
+    }
+  }
+  if (globalIndex < rows.length) {
+    pastInfo.push(
+      ..._.range(0, 131 + GlobalSheetUpdated * 6).map(
+        (entry) => sheet.getCell(globalIndex + 1, entry).value
+      ) // Has to be the number of columns in the Global Sheet
+    );
+  }
+  return [canonName, currentInfo, pastInfo];
+}
+
 async function getGlobalPlayer(player) {
   const names = globaldoc.sheetsByTitle["Names Correspondance"];
   const namerows = await names.getRows();
@@ -292,8 +369,7 @@ async function getGlobalPlayer(player) {
       if (names.getCell(i, j).value === null) {
         break;
       }
-
-      if (names.getCell(i, j).value.toLowerCase() === player) {
+      if (names.getCell(i, j).value.toString().toLowerCase() === player) {
         canonName = names.getCell(i, 0).value;
         globalIndex = i;
         if (names.getCell(i, 12).value !== null) {
@@ -348,7 +424,7 @@ async function dumpGuesses(guesses) {
   //}
 
   items.sort(function (first, second) {
-    return (first[0] < second[0]) ? -1 : ((first[0] > second[0]) ? 1 : 0);
+    return first[0] < second[0] ? -1 : first[0] > second[0] ? 1 : 0;
   });
 
   for (const item of items) {
@@ -369,7 +445,9 @@ async function dumpAwards() {
   ];
   let all_noms = [];
   for (const award of award_list) {
-    all_noms = all_noms.concat((await award_information.get(award)).map((e) => e.concat([award])));
+    all_noms = all_noms.concat(
+      (await award_information.get(award)).map((e) => e.concat([award]))
+    );
   }
   console.log(all_noms);
   await sheet.addRows(all_noms);
@@ -387,6 +465,7 @@ async function dumpAwards() {
 
 module.exports = {
   loadSheet,
+  nameSheetLoader,
   getLeaderboard,
   getGuessLeaderboard,
   getFantasyLeaderboard,
@@ -396,6 +475,7 @@ module.exports = {
   getGames,
   getPlayers,
   getGlobalPlayer,
+  getGlobalPlayer2,
   getUpdateTime,
   dumpGuesses,
   dumpAwards,

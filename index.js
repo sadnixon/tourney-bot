@@ -28,6 +28,8 @@ global.authorized_data_setters;
 global.team_roles_channels;
 global.guess_information;
 global.award_information;
+global.names_dictionary;
+global.ids_dictionary;
 global.coolDown = false;
 
 if (ENABLE_DB) {
@@ -43,11 +45,19 @@ if (ENABLE_DB) {
   award_information = new Keyv("mongodb://localhost:27017/tourney-bot", {
     namespace: "award_information",
   });
+  names_dictionary = new Keyv("mongodb://localhost:27017/tourney-bot", {
+    namespace: "names_dictionary",
+  });
+  ids_dictionary = new Keyv("mongodb://localhost:27017/tourney-bot", {
+    namespace: "ids_dictionary",
+  });
 } else {
   authorized_data_setters = new Keyv();
   team_roles_channels = new Keyv();
   guess_information = new Keyv();
   award_information = new Keyv();
+  names_dictionary = new Keyv();
+  ids_dictionary = new Keyv();
 }
 
 client.commands = new Discord.Collection();
@@ -66,6 +76,7 @@ client.once("ready", () => {
   client.user.setActivity(`${PREFIX}info`, { type: "WATCHING" });
   console.log("Ready!");
   scheduler();
+  sheet.nameSheetLoader();
 });
 
 async function scheduler() {
