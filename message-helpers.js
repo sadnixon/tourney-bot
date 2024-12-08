@@ -60,7 +60,13 @@ async function alertMessage(client, mods = false) {
     .filter((entry) => entry !== null)
     .find((g) => g.number === currentGame.number).type;
 
+    
+  console.log(client);
+  console.log(await client.guilds.cache);
+  console.log(await getGuildID());
   const guild = await client.guilds.fetch(await getGuildID());
+  console.log(guild);
+  console.log(guild.channels.cache);
 
   if (mods) {
     await guild.channels.cache
