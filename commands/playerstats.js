@@ -34,18 +34,20 @@ async function execute(message, args, user) {
       .setFooter(`Updated ${user.updateTime}`);
     return message.channel.send(embed);
   }
-
-  if (
-    args[0].substr(0, 2) === "<@" &&
-    args[0].charAt(args[0].length - 1) === ">"
-  ) {
-    player = await ids_dictionary.get(
-      args[0].substr(2, args[0].length - 3)
-    );
-  } else {
-    player = await names_dictionary.get(
-      args.join("").toLowerCase()
-    );
+  
+  if (args.length > 0) {
+    if (
+      args[0].substr(0, 2) === "<@" &&
+      args[0].charAt(args[0].length - 1) === ">"
+    ) {
+      player = await ids_dictionary.get(
+        args[0].substr(2, args[0].length - 3)
+      );
+    } else {
+      player = await names_dictionary.get(
+        args.join("").toLowerCase()
+      );
+    }
   }
   if (player == null) {
     return message.channel.send(
