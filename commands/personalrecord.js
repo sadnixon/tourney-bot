@@ -5,12 +5,23 @@ const { errorMessage, rank } = require("../message-helpers");
 async function execute(message, args, user) {
   try {
     let id = message.author.id;
-    if (args.length > 0) {
-      id = args[0];
-    }
-    if (args.length > 0 && (isNaN(args[0]) || isNaN(parseFloat(args[0])))) {
+    if (
+      args.length > 0 &&
+      args[0].substr(0, 2) === "<@" &&
+      args[0].charAt(args[0].length - 1) === ">"
+    ) {
       // Assume it's a mention
-      id = id.substr(2, id.length - 3);
+      id = args[0].substr(2, args[0].length - 3);
+    } else if (args.length > 0) {
+      const player = await names_dictionary.get(args.join("").toLowerCase());
+      id = player.discord;
+      if (id == null) {
+        return message.channel.send(
+          errorMessage(
+            "Must include either a tag for someone who has guessed, or a valid tourney name for someone who has guessed."
+          )
+        );
+      }
     }
     const guessRecord = await sheet.getPersonalStats(id);
     const embed = new Discord.MessageEmbed()

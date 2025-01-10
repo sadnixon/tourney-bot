@@ -23,7 +23,7 @@ async function execute(message, args, user) {
       .filter((entry) => entry !== null)
       .find((g) => g.number === currentGame.number).type;
     for (var channel of channels) {
-      if (["VC", "VC+", "SpecialVC"].includes(currentType)) {
+      if (["VC", "VC+", "VCSpecial"].includes(currentType)) {
         message.guild.channels.cache
           .get(channel)
           .send(

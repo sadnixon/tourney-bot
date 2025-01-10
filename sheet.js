@@ -31,21 +31,68 @@ let updateTime = new Date(new Date().getTime());
 async function loadSheet() {
   updateTime = new Date(new Date().getTime());
   await doc.loadInfo();
-  await doc.sheetsByIndex[8].loadCells("B11:E17"); //The borders of the Leaderboard on main sheet
-  await doc.sheetsByIndex[2].loadCells("B1:O18"); //The borders of the Schedule on main sheet
-  await doc.sheetsByIndex[7].loadCells("A1:BH66"); //The relevant portion of the Importer
-  await doc.sheetsByIndex[5].loadCells("A1:O101"); //The borders of the Personal Scores Block
-  await doc.sheetsByIndex[9].loadCells("B78:I142"); //The lefthand portion of the Fantasy League
+  await doc.sheetsByTitle["Team Stats 🧮"].loadCells("B11:E17"); //The borders of the Leaderboard on main sheet
+  //await doc.sheetsByTitle["Schedule 📅"].loadCells("B1:O18"); //The borders of the Schedule on main sheet
+  await doc.sheetsByTitle["Importer"].loadCells("A1:BH78"); //The relevant portion of the Importer
+  await doc.sheetsByTitle["Personal Scores + Stats 🧮"].loadCells("A1:O101"); //The borders of the Personal Scores Block
+  await doc.sheetsByTitle["Fantasy League 🔮"].loadCells("B70:I131"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
-  await moddoc.sheetsByIndex[0].loadCells("A1:N2000");
-  await moddoc.sheetsByIndex[1].loadCells("A1:C200");
-  await moddoc.sheetsByIndex[2].loadCells("A1:O75");
-  await moddoc.sheetsByIndex[3].loadCells("A1:N2000");
-  await moddoc.sheetsByIndex[4].loadCells("A1:N2000");
-  await namesdoc.loadInfo();
-  await namesdoc.sheetsByIndex[0].loadCells("M1:U389");
+  await moddoc.sheetsByTitle["Guesses"].loadCells("A1:N2000");
+  await moddoc.sheetsByTitle["Personal Scores"].loadCells("A1:C200");
+  await moddoc.sheetsByTitle["Guesses Per Game"].loadCells("A1:O80");
+  await moddoc.sheetsByTitle["Team Guesses"].loadCells("A1:N500");
+  await moddoc.sheetsByTitle["Merlin Guesses"].loadCells("A1:N500");
+  //#await namesdoc.loadInfo();
+  //await namesdoc.sheetsByTitle["Names By Tourney"].loadCells("O1:U398");
   await globaldoc.loadInfo();
-  await globaldoc.sheetsByIndex[2].loadCells("A1:BP380");
+  await globaldoc.sheetsByTitle["Personal Stats"].loadCells("A1:DU387");
+}
+
+async function nameSheetLoader() {
+  await namesdoc.loadInfo();
+  await namesdoc.sheetsByTitle["Names By Tourney"].loadCells("O1:Z393");
+  const names = namesdoc.sheetsByTitle["Names By Tourney"];
+  const namerows = await names.getRows();
+  const namecolumns = ["Q", "R", "S","T","U","V","W","X"];
+
+  await ids_dictionary.clear();
+  await names_dictionary.clear();
+
+  for (let i = 2; i < namerows.length + 2; i++) {
+    for (const j of namecolumns) {
+      if (names.getCellByA1(`${j}${i}`).value === null) {
+        break;
+      }
+      await names_dictionary.set(
+        names.getCellByA1(`${j}${i}`).value.toString().toLowerCase(),
+        {
+          global: names.getCellByA1(`P${i}`).value
+            ? names.getCellByA1(`P${i}`).value.toString()
+            : null,
+          current: names.getCellByA1(`O${i}`).value
+            ? names.getCellByA1(`O${i}`).value.toString()
+            : null,
+          canon: names.getCellByA1(`Q${i}`).value.toString(),
+          index: i - 1,
+          discord: names.getCellByA1(`Z${i}`).value
+            ? names.getCellByA1(`Z${i}`).value.toString()
+            : null,
+        }
+      );
+    }
+    if (names.getCellByA1(`Z${i}`).value !== null) {
+      await ids_dictionary.set(names.getCellByA1(`Z${i}`).value.toString(), {
+        global: names.getCellByA1(`P${i}`).value
+          ? names.getCellByA1(`P${i}`).value.toString()
+          : null,
+        current: names.getCellByA1(`O${i}`).value
+          ? names.getCellByA1(`O${i}`).value.toString()
+          : null,
+        canon: names.getCellByA1(`Q${i}`).value.toString(),
+        index: i - 1,
+      });
+    }
+  }
 }
 
 //setTimeout(loadSheet, 0);
@@ -56,7 +103,7 @@ function getUpdateTime() {
 }
 
 async function getLeaderboard() {
-  const sheet = doc.sheetsByIndex[8];
+  const sheet = doc.sheetsByTitle["Team Stats 🧮"];
   // await sheet.loadCells("AA2:AL15");
   const leaderboard = _.range(0, 7).map((row) => ({
     name: sheet.getCellByA1(`C${11 + row}`).value, //Column has to be leftmost column of leaderboard
@@ -67,7 +114,7 @@ async function getLeaderboard() {
 }
 
 async function getGuessLeaderboard() {
-  const sheet = moddoc.sheetsByIndex[1];
+  const sheet = moddoc.sheetsByTitle["Personal Scores"];
   const leaderboard = _.range(2, 200, 1).map((row) => ({
     name: sheet.getCellByA1(`A${row}`).value,
     score: sheet.getCellByA1(`B${row}`).value,
@@ -77,8 +124,8 @@ async function getGuessLeaderboard() {
 }
 
 async function getFantasyLeaderboard() {
-  const sheet = doc.sheetsByIndex[9];
-  const leaderboard = _.range(78, 143, 1).map((row) => ({
+  const sheet = doc.sheetsByTitle["Fantasy League 🔮"];
+  const leaderboard = _.range(70, 131, 1).map((row) => ({
     mod: sheet.getCellByA1(`B${row}`).value,
     team: sheet.getCellByA1(`D${row}`).value,
     name: sheet.getCellByA1(`E${row}`).value,
@@ -95,8 +142,10 @@ async function getFantasyLeaderboard() {
 }
 
 async function getPersonalStats(player) {
-  const sheet = moddoc.sheetsByIndex[0];
-  return _.range(1, 2000)
+  const sheet = moddoc.sheetsByTitle["Guesses"];
+  const merlinSheet = moddoc.sheetsByTitle["Merlin Guesses"];
+  const teamSheet = moddoc.sheetsByTitle["Team Guesses"];
+  let guessList = _.range(1, 2000)
     .map((row) => {
       if (
         sheet.getCell(row, 0).value === null ||
@@ -124,15 +173,74 @@ async function getPersonalStats(player) {
       };
     })
     .filter((guess) => guess);
+  let merlinGuessList = _.range(1, 500)
+    .map((row) => {
+      if (
+        merlinSheet.getCell(row, 0).value === null ||
+        merlinSheet.getCell(row, 1).value !== player ||
+        merlinSheet.getCell(row, 5).value == null
+      )
+        return null;
+      let game;
+      if (Number.isInteger(parseFloat(merlinSheet.getCell(row, 3).value))) {
+        game = merlinSheet.getCell(row, 3).value;
+      } else if (parseFloat(merlinSheet.getCell(row, 3).value) < 1) {
+        game = `BG${parseInt(parseFloat(merlinSheet.getCell(row, 3).value) * 10)}`;
+      } else {
+        const subGameList = ["A", "B", "C", "D"];
+        const subGame =
+          subGameList[
+            (parseFloat(merlinSheet.getCell(row, 3).value) % 1).toFixed(1) * 10 - 1
+          ];
+        game = [parseInt(merlinSheet.getCell(row, 3).value), subGame].join("");
+      }
+      return {
+        line: `${merlinSheet.getCell(row, 2).value} (merlin)`,
+        game,
+        points: merlinSheet.getCell(row, 5).value,
+      };
+    })
+    .filter((guess) => guess);
+  let teamGuessList = _.range(1, 500)
+    .map((row) => {
+      if (
+        teamSheet.getCell(row, 0).value === null ||
+        teamSheet.getCell(row, 1).value !== player ||
+        teamSheet.getCell(row, 5).value == null
+      )
+        return null;
+      let game;
+      if (Number.isInteger(parseFloat(teamSheet.getCell(row, 3).value))) {
+        game = teamSheet.getCell(row, 3).value;
+      } else if (parseFloat(teamSheet.getCell(row, 3).value) < 1) {
+        game = `BG${parseInt(parseFloat(teamSheet.getCell(row, 3).value) * 10)}`;
+      } else {
+        const subGameList = ["A", "B", "C", "D"];
+        const subGame =
+          subGameList[
+            (parseFloat(teamSheet.getCell(row, 3).value) % 1).toFixed(1) * 10 - 1
+          ];
+        game = [parseInt(teamSheet.getCell(row, 3).value), subGame].join("");
+      }
+      return {
+        line: `${teamSheet.getCell(row, 2).value} (teams)`,
+        game,
+        points: teamSheet.getCell(row, 5).value,
+      };
+    })
+    .filter((guess) => guess);
+  const compositeList = guessList.concat(merlinGuessList,teamGuessList);
+  compositeList.sort((a, b) => a.game - b.game);
+  return compositeList;
 }
 
 async function getBestGuess(game) {
-  const sheet = moddoc.sheetsByIndex[2];
-  const sheetMerlin = moddoc.sheetsByIndex[4];
+  const sheet = moddoc.sheetsByTitle["Guesses Per Game"];
+  const sheetMerlin = moddoc.sheetsByTitle["Merlin Guesses"];
   const rows = await sheet.getRows();
   let guesserList = [];
   let bestRow = [];
-  for (let i = 0; i < 75; i++) {
+  for (let i = 0; i < 80; i++) {
     if (parseFloat(rows[i]._rawData[0]) === game) {
       bestRow = rows[i]._rawData;
       break;
@@ -156,11 +264,11 @@ async function getBestGuess(game) {
 }
 
 async function getSchedule() {
-  const sheet = doc.sheetsByIndex[7];
+  const sheet = doc.sheetsByTitle["Importer"];
   //await sheet.loadCells("A1:S23");
   const dayGames = [5, 6, 6, 5, 5, 5, 5, 5, 6, 6];
-  const dayTriples = [0, 0, 1, 0, 1, 0, 1, 0, 0, 0];
-  const dayQuads = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
+  let dayTriples = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  let dayQuads = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   //console.log(
   //  sheet.getCellByA1(`B${dayGames.slice(8, 0).reduce((a, b) => a + b, 0) + 3}`)
   //    .value
@@ -216,8 +324,10 @@ async function getSchedule() {
         ).value;
         if (["Silent", "Bullet", "Birthday"].includes(gameType)) {
           skips = skips + 2;
+          dayTriples[idx] = dayTriples[idx] + 1
         } else if (["Silent+"].includes(gameType)) {
           skips = skips + 3;
+          dayQuads[idx] = dayQuads[idx] + 1
         }
         if (row === dayGames[idx] - 1) {
           skips = 0;
@@ -241,9 +351,9 @@ async function getSchedule() {
 }
 
 async function getGames() {
-  const sheet = doc.sheetsByIndex[7];
+  const sheet = doc.sheetsByTitle["Importer"];
   const emojis = await getTeamEmojis();
-  return _.range(2, 66) //Has to be one more than the number of rows in Inporter
+  return _.range(2, 78) //Has to be one more than the number of rows in Inporter
     .map((row) => {
       if (sheet.getCell(row, 1).value === null) return null;
 
@@ -321,7 +431,7 @@ async function getGames() {
 }
 
 async function getPlayers() {
-  const sheet = doc.sheetsByIndex[5];
+  const sheet = doc.sheetsByTitle["Personal Scores + Stats 🧮"];
   const players = [];
   let teamName = "";
   for (let i = 0; i < 13 * 7; i++) {
@@ -339,6 +449,40 @@ async function getPlayers() {
     });
   }
   return players;
+}
+
+async function getGlobalPlayer2(player) {
+  const sheet = globaldoc.sheetsByTitle["Personal Stats"];
+  const rows = await sheet.getRows();
+  const currentsheet = doc.sheetsByTitle["Personal Scores + Stats 🧮"];
+  let canonName = player.canon;
+  let globalIndex = player.index;
+  let currentName = player.current;
+  let currentInfo = [];
+  let pastInfo = [];
+  let teamName = "";
+  if (currentName) {
+    for (let k = 0; k < 13 * 7; k++) {
+      // It has to be the number of players in each team times seven
+      teamName = currentsheet.getCell(k + 9, 2).value || teamName;
+      if (currentsheet.getCell(k + 9, 3).value === currentName) {
+        currentInfo.push(
+          teamName,
+          ..._.range(3, 9).map(
+            (entry) => currentsheet.getCell(k + 9, entry).value
+          )
+        );
+      }
+    }
+  }
+  if (globalIndex < rows.length) {
+    pastInfo.push(
+      ..._.range(0, 125).map(
+        (entry) => sheet.getCell(globalIndex + 3, entry).value
+      ) // Has to be the number of columns in the Global Sheet
+    );
+  }
+  return [canonName, currentInfo, pastInfo];
 }
 
 async function getGlobalPlayer(player) {
@@ -404,7 +548,7 @@ async function getGlobalPlayer(player) {
 }
 
 async function dumpGuesses(guesses) {
-  const sheet = moddoc.sheetsByIndex[0];
+  const sheet = moddoc.sheetsByTitle["Guesses"];
   let guess_keys = [...new Set(await guess_information.get("guessIDs"))];
   let items = [];
   for (const key of guess_keys) {
@@ -437,9 +581,9 @@ async function dumpSpecialGuesses(guesses) {
       await guess_information.get("specialMode")
     )
   ) {
-    sheet = moddoc.sheetsByIndex[3];
+    sheet = moddoc.sheetsByTitle["Team Guesses"];
   } else {
-    sheet = moddoc.sheetsByIndex[4];
+    sheet = moddoc.sheetsByTitle["Merlin Guesses"];
   }
   for (const item of items) {
     await sheet.addRow(item);
@@ -448,6 +592,7 @@ async function dumpSpecialGuesses(guesses) {
 
 module.exports = {
   loadSheet,
+  nameSheetLoader,
   getLeaderboard,
   getGuessLeaderboard,
   getFantasyLeaderboard,
@@ -457,6 +602,7 @@ module.exports = {
   getGames,
   getPlayers,
   getGlobalPlayer,
+  getGlobalPlayer2,
   getUpdateTime,
   dumpGuesses,
   dumpSpecialGuesses,
