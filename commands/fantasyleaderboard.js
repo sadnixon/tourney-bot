@@ -25,7 +25,8 @@ async function execute(message, args, user) {
       noModLeaderboard,
       ppg ? "pointsPerGame" : "score",
       ppg ? "score" : "pointsPerGame",
-      playerNumber
+      playerNumber,
+      0
     );
     const embed = new Discord.MessageEmbed()
       .setTitle(

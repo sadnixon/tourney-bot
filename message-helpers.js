@@ -7,11 +7,11 @@ const errorMessage = (message) => {
   return new Discord.MessageEmbed().setDescription(message).setColor("#ff0000");
 };
 
-const rank = (competitorList, column, secondary = false, limit = 10) => {
+const rank = (competitorList, column, secondary = false, limit = 10, start = 1) => {
   // assume competitorList is sorted by column
   // returns rank of each competitor (i and j have the same rank if i[column] === j[column])
   const ranks = [];
-  let lastRank = 1;
+  let lastRank = start;
   let lastScore = -1;
   let lastSecondary = -1;
   let reachedLimit = false;
