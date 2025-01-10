@@ -11,7 +11,7 @@ const rank = (competitorList, column, secondary = false, limit = 10, start = 1) 
   // assume competitorList is sorted by column
   // returns rank of each competitor (i and j have the same rank if i[column] === j[column])
   const ranks = [];
-  let lastRank = start;
+  let lastRank = 1;
   let lastScore = -1;
   let lastSecondary = -1;
   let reachedLimit = false;
@@ -20,13 +20,13 @@ const rank = (competitorList, column, secondary = false, limit = 10, start = 1) 
       return;
     }
     if (p[column] !== lastScore) {
-      lastRank = i + 1;
+      lastRank = i + start;
       if (lastRank > limit) {
         reachedLimit = true;
         return;
       }
     } else if (p[secondary] !== lastSecondary) {
-      lastRank = i + 1;
+      lastRank = i + start;
       if (lastRank > limit) {
         reachedLimit = true;
         return;
