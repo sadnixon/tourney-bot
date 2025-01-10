@@ -98,7 +98,7 @@ async function execute(message, args, user) {
         playerInfo[1].length > 0
           ? playerInfo[2].length > 0
             ? `**Overall Points:** ${
-                playerInfo[2][4] + playerInfo[1][5]
+                playerInfo[2][6] + playerInfo[1][5]
               }\n**Overall Record:** ${roundToThirds(
                 playerInfo[2][3] + playerInfo[1][3]
               )}/${playerInfo[2][2] + playerInfo[1][2]} (${+(
@@ -123,7 +123,7 @@ async function execute(message, args, user) {
                 playerInfo[1][5]
               } pts (${roundToThirds(playerInfo[1][3])}/${playerInfo[1][2]})`
           : `**Overall Points:** ${
-              playerInfo[2][4]
+              playerInfo[2][6]
             }\n**Overall Record:** ${roundToThirds(playerInfo[2][3])}/${
               playerInfo[2][2]
             } (${+((playerInfo[2][3] / playerInfo[2][2]) * 100).toFixed(

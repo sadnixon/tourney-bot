@@ -7,7 +7,7 @@ async function execute(message, args, user) {
   const games2 = await sheet.getGames();
   const currentGame = games2.find((g) => !g.played);
   //const currentMode = 'AvalonSH';
-  console.log(currentGame);
+  //console.log(currentGame);
   if (!(await guess_information.get("open")) && user.isAuthorized) {
     message.channel.send("Guessing Opened!");
     //open = !open;

@@ -8,13 +8,13 @@ const { formatDistanceToNow } = require("date-fns");
 async function scheduleEmbed(dayNumber, footer) {
   const currentDate = new Date();
   const schedule = await sheet.getSchedule();
-  console.log(schedule);
+  //console.log(schedule);
 
   const daySchedule = schedule.find(
     (day) => day.number === parseInt(dayNumber)
   );
   const games = await sheet.getGames();
-  console.log(games);
+  //console.log(games);
   return new Discord.MessageEmbed()
     .setTitle(
       `Day ${dayNumber}: ${format(

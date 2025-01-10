@@ -44,9 +44,17 @@ async function loadSheet() {
   await moddoc.sheetsByTitle["Merlin Guesses"].loadCells("A1:N500");
   //#await namesdoc.loadInfo();
   //await namesdoc.sheetsByTitle["Names By Tourney"].loadCells("O1:U398");
+  //await globaldoc.loadInfo();
+  //await globaldoc.sheetsByTitle["Personal Stats"].loadCells("A1:DU387");
+}
+
+async function loadGlobalSheet() {
   await globaldoc.loadInfo();
   await globaldoc.sheetsByTitle["Personal Stats"].loadCells("A1:DU387");
 }
+
+setTimeout(loadGlobalSheet, 0);
+setInterval(loadGlobalSheet, 600000);
 
 async function nameSheetLoader() {
   await namesdoc.loadInfo();
@@ -592,6 +600,7 @@ async function dumpSpecialGuesses(guesses) {
 
 module.exports = {
   loadSheet,
+  loadGlobalSheet,
   nameSheetLoader,
   getLeaderboard,
   getGuessLeaderboard,
