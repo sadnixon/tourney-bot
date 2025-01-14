@@ -61,7 +61,7 @@ async function nameSheetLoader() {
   await namesdoc.sheetsByTitle["Names By Tourney"].loadCells("O1:Z393");
   const names = namesdoc.sheetsByTitle["Names By Tourney"];
   const namerows = await names.getRows();
-  const namecolumns = ["Q", "R", "S","T","U","V","W","X"];
+  const namecolumns = ["Q", "R", "S", "T", "U", "V", "W", "X"];
 
   await ids_dictionary.clear();
   await names_dictionary.clear();
@@ -100,6 +100,104 @@ async function nameSheetLoader() {
         index: i - 1,
       });
     }
+  }
+}
+
+async function gamesDictLoader() {
+  await globaldoc.loadInfo();
+  await globaldoc.sheetsByTitle["Game Results & Roles"].loadCells("A3:L634");
+  resultsRoles = globaldoc.sheetsByTitle["Game Results & Roles"];
+  let playerDict = {};
+  let gameDict = {};
+  const seatList = ["F", "G", "H", "I", "J", "K", "L"];
+  const modeDict = {
+    A: "Anonymous",
+    "A-S": "Anon. Special",
+    Av: "Avalon SH",
+    "Av-S": "Avalon SH Special",
+    "Av+": "Avalon SH+",
+    BD: "Birthday",
+    Bl: "Blitz",
+    Bu: "Bullet",
+    "C-B1": "Custom 1",
+    "C-B2": "Custom 2",
+    D: "Duo",
+    "D+": "Duo+",
+    "E<": "Elo Max",
+    "E>": "Elo Min",
+    Em: "Emotes",
+    "Em-S": "Emotes Special",
+    "Em+": "Emotes+",
+    R: "Regular",
+    Ra: "Rapid",
+    "Ra+": "Rapid+",
+    S: "Special",
+    Si: "Silent",
+    "Si+": "Silent+",
+    VC: "VC",
+    "VC-S": "VC Special",
+    "VC+": "VC+",
+  };
+  const roleDict = {
+    F: { Avalon: "Me", Regular: "L", Team: "L" },
+    G: { Avalon: "P", Regular: "L", Team: "L" },
+    H: { Avalon: "L", Regular: "L", Team: "L" },
+    I: { Avalon: "L", Regular: "L", Team: "L" },
+    J: { Avalon: "Mo", Regular: "F", Team: "F" },
+    K: { Avalon: "F", Regular: "F", Team: "F" },
+    L: { Avalon: "H", Regular: "H", Team: "F" },
+  };
+  let tourney = 0;
+  let game = 0;
+  let mode = "";
+  let role = "";
+  let team = "";
+  let player = "";
+  let game_key = "";
+
+  for (let i = 3; i < 635; i++) {
+    if (
+      resultsRoles.getCellByA1(`A${i}`).value !== null
+    ) {
+      tourney++;
+    }
+    game = resultsRoles.getCellByA1(`B${i}`).value;
+    game_key = `${tourney}_${game}`;
+    mode = modeDict[resultsRoles.getCellByA1(`C${i}`).value];
+    winner = resultsRoles.getCellByA1(`E${i}`).value;
+    gameDict[game_key] = {
+      mode: mode,
+      winner: winner,
+      index: i,
+      tourney: tourney,
+      game: game,
+    };
+    for (const j of seatList) {
+      team = roleDict[j].Team;
+      player = resultsRoles.getCellByA1(`${j}${i}`).value;
+      if (["Avalon SH", "Avalon SH+", "Avalon SH Special"].includes(mode)) {
+        role = roleDict[j].Avalon;
+      } else {
+        role = roleDict[j].Regular;
+      }
+      if (player in playerDict) {
+        playerDict[player][game_key] = {
+          role: role,
+          team: team,
+        };
+      } else {
+        playerDict[player] = {};
+        playerDict[player][game_key] = {
+          role: role,
+          team: team,
+        };
+      }
+    }
+  }
+  await games_dictionary.clear();
+  await games_dictionary.set("gameDict", gameDict);
+  for (const player in playerDict) {
+    await games_dictionary.set(player, playerDict[player]);
   }
 }
 
@@ -193,12 +291,16 @@ async function getPersonalStats(player) {
       if (Number.isInteger(parseFloat(merlinSheet.getCell(row, 3).value))) {
         game = merlinSheet.getCell(row, 3).value;
       } else if (parseFloat(merlinSheet.getCell(row, 3).value) < 1) {
-        game = `BG${parseInt(parseFloat(merlinSheet.getCell(row, 3).value) * 10)}`;
+        game = `BG${parseInt(
+          parseFloat(merlinSheet.getCell(row, 3).value) * 10
+        )}`;
       } else {
         const subGameList = ["A", "B", "C", "D"];
         const subGame =
           subGameList[
-            (parseFloat(merlinSheet.getCell(row, 3).value) % 1).toFixed(1) * 10 - 1
+            (parseFloat(merlinSheet.getCell(row, 3).value) % 1).toFixed(1) *
+              10 -
+              1
           ];
         game = [parseInt(merlinSheet.getCell(row, 3).value), subGame].join("");
       }
@@ -221,12 +323,15 @@ async function getPersonalStats(player) {
       if (Number.isInteger(parseFloat(teamSheet.getCell(row, 3).value))) {
         game = teamSheet.getCell(row, 3).value;
       } else if (parseFloat(teamSheet.getCell(row, 3).value) < 1) {
-        game = `BG${parseInt(parseFloat(teamSheet.getCell(row, 3).value) * 10)}`;
+        game = `BG${parseInt(
+          parseFloat(teamSheet.getCell(row, 3).value) * 10
+        )}`;
       } else {
         const subGameList = ["A", "B", "C", "D"];
         const subGame =
           subGameList[
-            (parseFloat(teamSheet.getCell(row, 3).value) % 1).toFixed(1) * 10 - 1
+            (parseFloat(teamSheet.getCell(row, 3).value) % 1).toFixed(1) * 10 -
+              1
           ];
         game = [parseInt(teamSheet.getCell(row, 3).value), subGame].join("");
       }
@@ -237,7 +342,7 @@ async function getPersonalStats(player) {
       };
     })
     .filter((guess) => guess);
-  const compositeList = guessList.concat(merlinGuessList,teamGuessList);
+  const compositeList = guessList.concat(merlinGuessList, teamGuessList);
   compositeList.sort((a, b) => a.game - b.game);
   return compositeList;
 }
@@ -332,10 +437,10 @@ async function getSchedule() {
         ).value;
         if (["Silent", "Bullet", "Birthday"].includes(gameType)) {
           skips = skips + 2;
-          dayTriples[idx] = dayTriples[idx] + 1
+          dayTriples[idx] = dayTriples[idx] + 1;
         } else if (["Silent+"].includes(gameType)) {
           skips = skips + 3;
-          dayQuads[idx] = dayQuads[idx] + 1
+          dayQuads[idx] = dayQuads[idx] + 1;
         }
         if (row === dayGames[idx] - 1) {
           skips = 0;
@@ -402,7 +507,7 @@ async function getGames() {
         (i) => `${emojis[i]} ${sheet.getCell(row, 13 + i).value}`
       );
       let coaches;
-      if (["Duo","Duo+"].includes(mode)) {
+      if (["Duo", "Duo+"].includes(mode)) {
         coaches = _.range(0, 7).map(
           (i) => `${sheet.getCell(row, 20 + i).value}`
         );
@@ -491,6 +596,83 @@ async function getGlobalPlayer2(player) {
     );
   }
   return [canonName, currentInfo, pastInfo];
+}
+
+async function getPlayerGames(player) {
+  const sheet = doc.sheetsByTitle["Importer"];
+  const seatDict = {
+    N: "AS",
+    O: "AT",
+    P: "AU",
+    Q: "AV",
+    R: "AW",
+    S: "AX",
+    T: "AY",
+  };
+  let gameDict;
+  let playerGames;
+  if (player.global) {
+    playerGames = await games_dictionary.get(player.global);
+    gameDict = await games_dictionary.get("gameDict");
+  } else {
+    playerGames = [];
+    gameDict = {};
+  }
+
+  const roleDict = {
+    L: "L",
+    P: "L",
+    Me: "L",
+    Mo: "F",
+    F: "F",
+    H: "F",
+  };
+  let tourney = 13;
+  let game = 0;
+  let mode = "";
+  let role = "";
+  let team = "";
+  let game_key = "";
+
+  for (let i = 3; i < 78; i++) {
+    if (sheet.getCellByA1(`H${i}`).value !== "GO") {
+      break;
+    }
+    if (sheet.getCellByA1(`E${i}`).value !== null) {
+      game = sheet.getCellByA1(`E${i}`).value.match(/Game (\d+[A-D])/)[1];
+    } else {
+      game = sheet.getCellByA1(`B${i}`).value.match(/Game (\d+)/)[1];
+    }
+
+    game_key = `${tourney}_${game}`;
+
+    mode = sheet.getCellByA1(`D${i}`).value;
+    winner = sheet.getCellByA1(`K${i}`).value[0];
+    gameDict[game_key] = {
+      mode: mode,
+      winner: winner,
+      index: i + 1000,
+      tourney: tourney,
+      game: game,
+    };
+
+    for (seat in seatDict) {
+      if (sheet.getCellByA1(`${seat}${i}`).value !== player.current) {
+        continue;
+      }
+
+      role = sheet.getCellByA1(`${seatDict[seat]}${i}`).value;
+      team = roleDict[role];
+
+      playerGames[game_key] = {
+        role: role,
+        team: team,
+      };
+      break;
+    }
+  }
+
+  return { playerGames: playerGames, gameDict: gameDict };
 }
 
 async function getGlobalPlayer(player) {
@@ -602,6 +784,7 @@ module.exports = {
   loadSheet,
   loadGlobalSheet,
   nameSheetLoader,
+  gamesDictLoader,
   getLeaderboard,
   getGuessLeaderboard,
   getFantasyLeaderboard,
@@ -612,6 +795,7 @@ module.exports = {
   getPlayers,
   getGlobalPlayer,
   getGlobalPlayer2,
+  getPlayerGames,
   getUpdateTime,
   dumpGuesses,
   dumpSpecialGuesses,
