@@ -438,7 +438,7 @@ async function getSchedule() {
         if (["Silent", "Bullet", "Birthday"].includes(gameType)) {
           skips = skips + 2;
           dayTriples[idx] = dayTriples[idx] + 1;
-        } else if (["Silent+"].includes(gameType)) {
+        } else if (["Silent+","Mystery Special"].includes(gameType)) {
           skips = skips + 3;
           dayQuads[idx] = dayQuads[idx] + 1;
         }
@@ -477,7 +477,7 @@ async function getGames() {
 
       let number = sheet.getCell(row, 1).value;
       let subGame;
-      if (mode === "Silent" || mode === "Bullet" || mode === "Silent+") {
+      if (mode === "Silent" || mode === "Bullet" || mode === "Silent+" || mode === "MysterySpecial") {
         const subGameCell = sheet.getCell(row, 4).value;
         number = parseInt(subGameCell.replace(/[^\d]/g, ""));
         subGame = subGameCell.replace(/\s/g, "").slice(-1);

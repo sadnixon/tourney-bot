@@ -40,6 +40,7 @@ async function scheduleEmbed(dayNumber, footer) {
             game.type === "Silent" ||
             game.type === "Silent+" ||
             game.type === "Bullet" ||
+            game.type === "Mystery Special" ||
             game.type === "Birthday"
           ) {
             const gameInfos = games.filter((g) => g.number === game.number);
