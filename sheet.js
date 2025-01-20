@@ -42,6 +42,7 @@ async function loadSheet() {
   await moddoc.sheetsByTitle["Guesses Per Game"].loadCells("A1:O80");
   await moddoc.sheetsByTitle["Team Guesses"].loadCells("A1:N500");
   await moddoc.sheetsByTitle["Merlin Guesses"].loadCells("A1:N500");
+  await moddoc.sheetsByTitle["Chat Counts"].loadCells("A1:E200");
   //#await namesdoc.loadInfo();
   //await namesdoc.sheetsByTitle["Names By Tourney"].loadCells("O1:U398");
   //await globaldoc.loadInfo();
@@ -156,9 +157,7 @@ async function gamesDictLoader() {
   let game_key = "";
 
   for (let i = 3; i < 635; i++) {
-    if (
-      resultsRoles.getCellByA1(`A${i}`).value !== null
-    ) {
+    if (resultsRoles.getCellByA1(`A${i}`).value !== null) {
       tourney++;
     }
     game = resultsRoles.getCellByA1(`B${i}`).value;
@@ -438,7 +437,7 @@ async function getSchedule() {
         if (["Silent", "Bullet", "Birthday"].includes(gameType)) {
           skips = skips + 2;
           dayTriples[idx] = dayTriples[idx] + 1;
-        } else if (["Silent+","Mystery Special"].includes(gameType)) {
+        } else if (["Silent+", "Mystery Special"].includes(gameType)) {
           skips = skips + 3;
           dayQuads[idx] = dayQuads[idx] + 1;
         }
@@ -477,7 +476,12 @@ async function getGames() {
 
       let number = sheet.getCell(row, 1).value;
       let subGame;
-      if (mode === "Silent" || mode === "Bullet" || mode === "Silent+" || mode === "MysterySpecial") {
+      if (
+        mode === "Silent" ||
+        mode === "Bullet" ||
+        mode === "Silent+" ||
+        mode === "MysterySpecial"
+      ) {
         const subGameCell = sheet.getCell(row, 4).value;
         number = parseInt(subGameCell.replace(/[^\d]/g, ""));
         subGame = subGameCell.replace(/\s/g, "").slice(-1);
@@ -780,6 +784,24 @@ async function dumpSpecialGuesses(guesses) {
   }
 }
 
+async function dumpChatCounts(chatDict) {
+  const sheet = moddoc.sheetsByTitle["Chat Counts"];
+
+  let sheetBlock = [];
+
+  for (const key in chatDict) {
+    sheetBlock.push([
+      key,
+      chatDict.current,
+      chatDict.global,
+      chatDict.eventGen,
+      chatDict.teamChan,
+    ]);
+  }
+
+  await sheet.addRows(sheetBlock);
+}
+
 module.exports = {
   loadSheet,
   loadGlobalSheet,
@@ -799,4 +821,5 @@ module.exports = {
   getUpdateTime,
   dumpGuesses,
   dumpSpecialGuesses,
+  dumpChatCounts,
 };
