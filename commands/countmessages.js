@@ -15,7 +15,8 @@ async function execute(message, args, user) {
       .then((messagePage) =>
         messagePage.size === 1 ? messagePage.first() : null
       );
-    console.log(message1);
+    console.log(message1.channel.name);
+    let counter = 1;
 
     while (message1 && message1.createdTimestamp > startTime) {
       await eventGeneral.messages
@@ -32,6 +33,8 @@ async function execute(message, args, user) {
           // Update our message pointer to be the last message on the page of messages
           message1 = 0 < messagePage.size ? messagePage.last() : null;
         });
+      counter++;
+      console.log(counter * 100);
     }
 
     let teams = await team_roles_channels.get("teams");
@@ -43,7 +46,7 @@ async function execute(message, args, user) {
         .then((messagePage) =>
           messagePage.size === 1 ? messagePage.first() : null
         );
-      console.log(message1);
+      console.log(message1.channel.name);
 
       while (message1 && message1.createdTimestamp > startTime) {
         await teamChannel.messages
@@ -69,11 +72,11 @@ async function execute(message, args, user) {
     for (const key in authorDict) {
       let player = await ids_dictionary.get(key);
       if (player) {
-        authorDict["current"] = player.current;
-        authorDict["global"] = player.global;
+        authorDict[key]["current"] = player.current;
+        authorDict[key]["global"] = player.global;
       } else {
-        authorDict["current"] = null;
-        authorDict["global"] = null;
+        authorDict[key]["current"] = null;
+        authorDict[key]["global"] = null;
       }
     }
     sheet.dumpChatCounts(authorDict);

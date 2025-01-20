@@ -792,10 +792,10 @@ async function dumpChatCounts(chatDict) {
   for (const key in chatDict) {
     sheetBlock.push([
       key,
-      chatDict.current,
-      chatDict.global,
-      chatDict.eventGen,
-      chatDict.teamChan,
+      chatDict[key].current,
+      chatDict[key].global,
+      chatDict[key].eventGen,
+      chatDict[key].teamChan,
     ]);
   }
 
