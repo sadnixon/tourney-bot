@@ -82,9 +82,9 @@ async function execute(message, args, user) {
       "T7",
       "T8",
       "T9",
+      "T10",
       "8p T1",
       "8p T2",
-      "T10",
     ];
     const wins = playerInfo[2][54] || 0; //Must be the number of the global sheet column for tourney 1sts
     const avgPlace = playerInfo[2][63] || 0;

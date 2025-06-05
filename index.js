@@ -30,6 +30,7 @@ global.guess_information;
 global.award_information;
 global.names_dictionary;
 global.ids_dictionary;
+global.games_dictionary;
 global.coolDown = false;
 
 if (ENABLE_DB) {
@@ -51,6 +52,9 @@ if (ENABLE_DB) {
   ids_dictionary = new Keyv("mongodb://localhost:27017/tourney-bot", {
     namespace: "ids_dictionary",
   });
+  games_dictionary = new Keyv("mongodb://localhost:27017/tourney-bot", {
+    namespace: "games_dictionary",
+  });
 } else {
   authorized_data_setters = new Keyv();
   team_roles_channels = new Keyv();
@@ -58,6 +62,7 @@ if (ENABLE_DB) {
   award_information = new Keyv();
   names_dictionary = new Keyv();
   ids_dictionary = new Keyv();
+  games_dictionary = new Keyv();
 }
 
 client.commands = new Discord.Collection();
@@ -77,6 +82,7 @@ client.once("ready", () => {
   console.log("Ready!");
   scheduler();
   sheet.nameSheetLoader();
+  sheet.gamesDictLoader();
 });
 
 async function scheduler() {
