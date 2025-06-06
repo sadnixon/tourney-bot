@@ -3,12 +3,32 @@ const sheet = require("../sheet");
 const { errorMessage, rank, roundToThirds } = require("../message-helpers");
 
 async function execute(message, args, user) {
+  //hehe easter egg
+  if (
+    (message.author.id === "388116178268192768" &&
+      args &&
+      args[0].toLowerCase() === "alienna") ||
+    (message.author.id === "556674215487733780" &&
+      args &&
+      ["nixon", "sadnixon"].includes(args[0].toLowerCase())) ||
+    (args &&
+      args.length > 1 &&
+      ["nixon", "sadnixon", "alienna"].includes(args[0].toLowerCase()) &&
+      ["nixon", "sadnixon", "alienna"].includes(args[1].toLowerCase()))
+  ) {
+    const embed = new Discord.MessageEmbed()
+        .setTitle(`Head 2 Head Record: SadNixon - Alienna`)
+        .setDescription("**Total E-Kisses:** 32247578943\n**Attraction Level:**100%")
+        .setFooter(`Updated ${user.updateTime}`);
+      return message.channel.send(embed);
+  }
+
   let player1;
   let player2;
   if (args.length < 1) {
     return message.channel.send(
       errorMessage(
-        "Must include two valid player names, like Dev and Gamethrower, or tag two valid players' Discords, or include one valid player name and have played in the tourney yourself."
+        "Must include two valid player names, like wanglebangle and Tom, or tag two valid players' Discords, or include one valid player name and have played in the tourney yourself."
       )
     );
   } else if (args.length < 2) {
@@ -16,7 +36,7 @@ async function execute(message, args, user) {
     if (player1 == null) {
       return message.channel.send(
         errorMessage(
-          "Must include two valid player names, like Dev and Gamethrower, or tag two valid players' Discords, or include one valid player name and have played in the tourney yourself."
+          "Must include two valid player names, like wanglebangle and Tom, or tag two valid players' Discords, or include one valid player name and have played in the tourney yourself."
         )
       );
     }
@@ -53,7 +73,7 @@ async function execute(message, args, user) {
   if (player1 == null || player2 == null) {
     return message.channel.send(
       errorMessage(
-        "Must include two valid player names, like Dev and Gamethrower, or tag two valid players' Discords."
+        "Must include two valid player names, like wanglebangle and Tom, or tag two valid players' Discords."
       )
     );
   }

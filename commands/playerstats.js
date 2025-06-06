@@ -33,6 +33,12 @@ async function execute(message, args, user) {
       .setDescription("**Who?**")
       .setFooter(`Updated ${user.updateTime}`);
     return message.channel.send(embed);
+  } else if (args.join("").toLowerCase() === "alienna") {
+    const embed = new Discord.MessageEmbed()
+      .setTitle("LIG Statistics for Alienna")
+      .setDescription("**Overall Hearts Of American Nerds Won:** 1/1 (100%) :light_blue_heart:")
+      .setFooter(`Updated ${user.updateTime}`);
+    return message.channel.send(embed);
   }
 
   if (args.length > 0) {
