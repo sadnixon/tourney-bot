@@ -26,9 +26,9 @@ let updateTime = new Date(new Date().getTime());
 async function loadSheet() {
   updateTime = new Date(new Date().getTime());
   await doc.loadInfo();
-  await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:D14"); //The borders of the Leaderboard on main sheet
-  await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:Y53"); //The relevant portion of the Main Scoreboard, including the leaderboard
-  await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J76"); //The borders of the Personal Scores Block
+  await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:H17"); //The borders of the Leaderboard on main sheet
+  await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:Y48"); //The relevant portion of the Main Scoreboard, including the leaderboard
+  await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J70"); //The borders of the Personal Scores Block
   await doc.sheetsByTitle["Fantasy"].loadCells("D57:H102"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
   await moddoc.sheetsByTitle["Guesses"].loadCells("A1:G2000");
@@ -174,7 +174,8 @@ async function getLeaderboard() {
     score: sheet.getCellByA1(`C${3 + row * 2}`).value, //Number has to be the position of the top score in the Reformat block
     gamesWon: sheet.getCellByA1(`D${3 + row * 2}`).value,
   }));
-  return leaderboard;
+  const pointsRemaining = sheet.getCellByA1("H16").value;
+  return {leaderboard: leaderboard, pointsRemaining: pointsRemaining};
 }
 
 async function getGuessLeaderboard() {
@@ -250,8 +251,8 @@ async function getBestGuess(game) {
 async function getSchedule() {
   const sheet = doc.sheetsByTitle["Main Scoreboard"];
   //await sheet.loadCells("A1:S23");
-  const dayGames = [5, 6, 6, 4, 4, 4, 4, 5, 6, 6];
-  const dayNames = _.range(0, 10).map(
+  const dayGames = [3, 6, 6, 3, 4, 4, 4, 3, 12];
+  const dayNames = _.range(0, 9).map(
     (num) =>
       sheet.getCellByA1(
         `B${dayGames.slice(0, num).reduce((a, b) => a + b, 0) + 4}`
@@ -260,6 +261,7 @@ async function getSchedule() {
   const modeNames = {
     R: "Regular",
     T: "Timer Regular",
+    N: "Novice",
     D: "Duo",
     "D+": "Duo +",
     S: "Special",
@@ -285,7 +287,7 @@ async function getSchedule() {
       games: _.range(0, dayGames[idx]).map((row) => {
         cellTime =
           sheet.getCellByA1(
-            `F${dayGames.slice(0, idx).reduce((a, b) => a + b, 0) + row + 4}`
+            `E${dayGames.slice(0, idx).reduce((a, b) => a + b, 0) + row + 4}`
           ).formattedValue || cellTime;
         const cellHours = parseInt(cellTime.match(/\d+/)[0]); //yay for no daylight savings
         const am = cellTime.match(/AM/) != null; //got rid of some BS on these lines
@@ -297,7 +299,7 @@ async function getSchedule() {
           ],
           number: dayGames.slice(0, idx).reduce((a, b) => a + b, 0) + row + 1,
           time: am
-            ? new Date(Date.UTC(YEAR, MONTH, day + 1, cellHours % 12))
+            ? new Date(Date.UTC(YEAR, MONTH, day, cellHours % 12))
             : new Date(Date.UTC(YEAR, MONTH, day, (cellHours % 12) + 12)),
         };
       }),
@@ -312,6 +314,7 @@ async function getGames() {
   const modeNames = {
     R: "Regular",
     T: "Timer Regular",
+    N: "Novice",
     D: "Duo",
     "D+": "Duo +",
     S: "Special",
@@ -380,7 +383,7 @@ async function getPlayers() {
   const sheet = doc.sheetsByTitle["Personal Scores + Stats"];
   const players = [];
   let teamName = "";
-  for (let i = 0; i < 12 * 6; i++) {
+  for (let i = 0; i < 11 * 6; i++) {
     teamName = sheet.getCell(i + 4, 1).value || teamName;
     players.push({
       name: sheet.getCell(i + 4, 2).value,

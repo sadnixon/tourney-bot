@@ -4,15 +4,17 @@ const { errorMessage, rank } = require("../message-helpers");
 
 async function execute(message, args, user) {
   try {
-    const leaderboard = await sheet.getLeaderboard();
+    const output = await sheet.getLeaderboard();
+    const leaderboard = output.leaderboard;
+    const pointsRemaining = output.pointsRemaining;
     leaderboard.sort((a, b) => b.score - a.score || b.gamesWon - a.gamesWon);
     const ranks = rank(leaderboard, "score", "gamesWon");
     const embed = new Discord.MessageEmbed()
       .setTitle("Leaderboard")
       .setDescription(
-        leaderboard
+        `${leaderboard
           .map((entry, i) => `${ranks[i]}\\. ${entry.name}: ${entry.score}`)
-          .join("\n")
+          .join("\n")}\n\n**Points Remaining:** ${pointsRemaining}`
       )
       .setFooter(`Updated ${user.updateTime}`);
     message.channel.send(embed);

@@ -34,19 +34,15 @@ async function execute(message, args, user) {
       .setFooter(`Updated ${user.updateTime}`);
     return message.channel.send(embed);
   }
-  
+
   if (args.length > 0) {
     if (
       args[0].substr(0, 2) === "<@" &&
       args[0].charAt(args[0].length - 1) === ">"
     ) {
-      player = await ids_dictionary.get(
-        args[0].substr(2, args[0].length - 3)
-      );
+      player = await ids_dictionary.get(args[0].substr(2, args[0].length - 3));
     } else {
-      player = await names_dictionary.get(
-        args.join("").toLowerCase()
-      );
+      player = await names_dictionary.get(args.join("").toLowerCase());
     }
   }
   if (player == null) {
@@ -56,7 +52,6 @@ async function execute(message, args, user) {
       )
     );
   }
-
 
   const GlobalSheetUpdated = await getGlobalSheetUpdated();
   try {
@@ -85,6 +80,7 @@ async function execute(message, args, user) {
       "T10",
       "8p T1",
       "8p T2",
+      "T11",
     ];
     const wins = playerInfo[2][54] || 0; //Must be the number of the global sheet column for tourney 1sts
     const avgPlace = playerInfo[2][63] || 0;
@@ -125,19 +121,19 @@ async function execute(message, args, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][64 + entry * 6 + (entry > 8) * 1]
+                      playerInfo[2][64 + entry * 6 + (entry > 9) * 1]
                     } - ${
-                      playerInfo[2][68 + entry * 6 + (entry > 8) * 1]
+                      playerInfo[2][68 + entry * 6 + (entry > 9) * 1]
                     } pts *${
-                      playerInfo[2][69 + entry * 6 + (entry > 8) * 1]
+                      playerInfo[2][69 + entry * 6 + (entry > 9) * 1]
                     } adj.* (${
-                      playerInfo[2][67 + entry * 6 + (entry > 8) * 1]
-                    }/${playerInfo[2][66 + entry * 6 + (entry > 8) * 1]})`
+                      playerInfo[2][67 + entry * 6 + (entry > 9) * 1]
+                    }/${playerInfo[2][66 + entry * 6 + (entry > 9) * 1]})`
                 )
                 .join("\n") +
-              `\nT10: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
+              `\nT11: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
             : //Case where player has only present records
-              `**Rookie Tourney**\n\nT10: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
+              `**Rookie Tourney**\n\nT11: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
           : //Case where player has only past records
             `**Overall Points:** ${
               playerInfo[2][3]
@@ -155,14 +151,14 @@ async function execute(message, args, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][64 + entry * 6 + (entry > 8) * 1]
+                      playerInfo[2][64 + entry * 6 + (entry > 9) * 1]
                     } - ${
-                      playerInfo[2][68 + entry * 6 + (entry > 8) * 1]
+                      playerInfo[2][68 + entry * 6 + (entry > 9) * 1]
                     } pts *${
-                      playerInfo[2][69 + entry * 6 + (entry > 8) * 1]
+                      playerInfo[2][69 + entry * 6 + (entry > 9) * 1]
                     } adj.* (${
-                      playerInfo[2][67 + entry * 6 + (entry > 8) * 1]
-                    }/${playerInfo[2][66 + entry * 6 + (entry > 8) * 1]})`
+                      playerInfo[2][67 + entry * 6 + (entry > 9) * 1]
+                    }/${playerInfo[2][66 + entry * 6 + (entry > 9) * 1]})`
                 )
                 .join("\n")
       )

@@ -22,6 +22,10 @@ async function execute(message, args, user) {
       value: "View all-time statistics for a player",
     },
     {
+      name: `${PREFIX}head2head|h2h {player} {player}`,
+      value: "View head-to-head matchup statistics between two players",
+    },
+    {
       name: `${PREFIX}guessleaderboard|glb {length}`,
       value: "View the Merlin guessers leaderboard",
     },
