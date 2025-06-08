@@ -29,7 +29,7 @@ async function loadSheet() {
   await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:H17"); //The borders of the Leaderboard on main sheet
   await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:AG48"); //The relevant portion of the Main Scoreboard, including the leaderboard
   await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J70"); //The borders of the Personal Scores Block
-  await doc.sheetsByTitle["Fantasy"].loadCells("D57:H102"); //The lefthand portion of the Fantasy League
+  await doc.sheetsByTitle["Fantasy"].loadCells("D59:H106"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
   await moddoc.sheetsByTitle["Guesses"].loadCells("A1:G2000");
   await moddoc.sheetsByTitle["Personal Scores"].loadCells("A1:C200");
@@ -190,7 +190,7 @@ async function getGuessLeaderboard() {
 
 async function getFantasyLeaderboard() {
   const sheet = doc.sheetsByTitle["Fantasy"];
-  const leaderboard = _.range(57, 103, 1).map((row) => ({
+  const leaderboard = _.range(59, 107, 1).map((row) => ({
     mod: "",
     team: sheet.getCellByA1(`E${row}`).value,
     name: sheet.getCellByA1(`F${row}`).value,
