@@ -27,7 +27,7 @@ async function loadSheet() {
   updateTime = new Date(new Date().getTime());
   await doc.loadInfo();
   await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:H17"); //The borders of the Leaderboard on main sheet
-  await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:Y48"); //The relevant portion of the Main Scoreboard, including the leaderboard
+  await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:AG48"); //The relevant portion of the Main Scoreboard, including the leaderboard
   await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J70"); //The borders of the Personal Scores Block
   await doc.sheetsByTitle["Fantasy"].loadCells("D57:H102"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();

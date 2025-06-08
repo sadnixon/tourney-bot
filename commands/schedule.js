@@ -64,9 +64,10 @@ async function execute(message, args, user) {
       9,
       Math.max(
         1,
-        currentDate.getUTCHours() < 9 // day changes at 9AM UTC
-          ? currentDate.getUTCDate() - (await getStartDay())
-          : currentDate.getUTCDate() - (await getStartDay()) + 1
+        currentDate.getUTCDate() - (await getStartDay()) + 1
+        //currentDate.getUTCHours() < 9 // day changes at 9AM UTC
+        //  ? currentDate.getUTCDate() - (await getStartDay())
+        //  : currentDate.getUTCDate() - (await getStartDay()) + 1
       )
     );
   }
