@@ -29,7 +29,7 @@ async function loadSheet() {
   await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:H17"); //The borders of the Leaderboard on main sheet
   await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:AG48"); //The relevant portion of the Main Scoreboard, including the leaderboard
   await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J70"); //The borders of the Personal Scores Block
-  await doc.sheetsByTitle["Fantasy"].loadCells("D59:H106"); //The lefthand portion of the Fantasy League
+  await doc.sheetsByTitle["Fantasy"].loadCells("D60:H108"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
   await moddoc.sheetsByTitle["Guesses"].loadCells("A1:G2000");
   await moddoc.sheetsByTitle["Personal Scores"].loadCells("A1:C200");
@@ -90,7 +90,20 @@ async function gamesDictLoader() {
   let playerDict = {};
   let gameDict = {};
   const seatListReg = ["E", "F", "G", "H", "I", "J"];
-  const seatListDuo = ["E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"];
+  const seatListDuo = [
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+  ];
   let seatList = seatListReg;
   const roleDict = {
     E: { Regular: "VT", Team: "R" },
@@ -129,7 +142,7 @@ async function gamesDictLoader() {
       tourney: tourney,
       game: game,
     };
-    if (["D","D+"].includes(mode)) {
+    if (["D", "D+"].includes(mode)) {
       seatList = seatListDuo;
     } else {
       seatList = seatListReg;
@@ -175,7 +188,7 @@ async function getLeaderboard() {
     gamesWon: sheet.getCellByA1(`D${3 + row * 2}`).value,
   }));
   const pointsRemaining = sheet.getCellByA1("H16").value;
-  return {leaderboard: leaderboard, pointsRemaining: pointsRemaining};
+  return { leaderboard: leaderboard, pointsRemaining: pointsRemaining };
 }
 
 async function getGuessLeaderboard() {
@@ -190,7 +203,7 @@ async function getGuessLeaderboard() {
 
 async function getFantasyLeaderboard() {
   const sheet = doc.sheetsByTitle["Fantasy"];
-  const leaderboard = _.range(59, 107, 1).map((row) => ({
+  const leaderboard = _.range(60, 109, 1).map((row) => ({
     mod: "",
     team: sheet.getCellByA1(`E${row}`).value,
     name: sheet.getCellByA1(`F${row}`).value,
@@ -276,6 +289,7 @@ async function getSchedule() {
 
   const YEAR = await getYear();
   const MONTH = await getMonth();
+  const gameNumber = await getGameNumber();
 
   const schedule = dayNames.map((name, idx) => {
     const day = parseInt(name.match(/\d+/)[0]);
@@ -299,7 +313,10 @@ async function getSchedule() {
           ],
           number: dayGames.slice(0, idx).reduce((a, b) => a + b, 0) + row + 1,
           time: am
-            ? new Date(Date.UTC(YEAR, MONTH, day, cellHours % 12))
+            ? dayGames.slice(0, idx).reduce((a, b) => a + b, 0) + row + 1 >
+              gameNumber - 2
+              ? new Date(Date.UTC(YEAR, MONTH, day + 1, cellHours % 12))
+              : new Date(Date.UTC(YEAR, MONTH, day, cellHours % 12))
             : new Date(Date.UTC(YEAR, MONTH, day, (cellHours % 12) + 12)),
         };
       }),
@@ -436,14 +453,26 @@ async function getGlobalPlayer2(player) {
 async function getPlayerGames(player) {
   const sheet = doc.sheetsByTitle["Main Scoreboard"];
   const seatDictReg = {
-    G: "H", J: "K", M: "N",
-    P: "Q", S: "T", V: "W",
+    G: "H",
+    J: "K",
+    M: "N",
+    P: "Q",
+    S: "T",
+    V: "W",
   };
   const seatDictDuo = {
-    G: "H", J: "K", M: "N",
-    P: "Q", S: "T", V: "W",
-    AB: "H", AC: "K", AD: "N",
-    AE: "Q", AF: "T", AG: "W",
+    G: "H",
+    J: "K",
+    M: "N",
+    P: "Q",
+    S: "T",
+    V: "W",
+    AB: "H",
+    AC: "K",
+    AD: "N",
+    AE: "Q",
+    AF: "T",
+    AG: "W",
   };
   let seatDict = seatDictReg;
   let gameDict;
@@ -457,11 +486,11 @@ async function getPlayerGames(player) {
   }
 
   const roleDict = {
-    "Resistance": {"Role":"VT", "Team":"R"},
-    "Percival": {"Role":"P", "Team":"R"},
-    "Merlin": {"Role":"Me", "Team":"R"},
-    "Morgana": {"Role":"Mo", "Team":"S"},
-    "Assassin": {"Role":"A", "Team":"S"},
+    Resistance: { Role: "VT", Team: "R" },
+    Percival: { Role: "P", Team: "R" },
+    Merlin: { Role: "Me", Team: "R" },
+    Morgana: { Role: "Mo", Team: "S" },
+    Assassin: { Role: "A", Team: "S" },
   };
   let tourney = 11;
   let game = 0;
@@ -471,7 +500,7 @@ async function getPlayerGames(player) {
   let game_key = "";
 
   for (let i = 4; i < 49; i++) {
-    if (!["Spies","Resistance"].includes(sheet.getCellByA1(`Y${i}`).value)) {
+    if (!["Spies", "Resistance"].includes(sheet.getCellByA1(`Y${i}`).value)) {
       break;
     }
     game = sheet.getCellByA1(`C${i}`).value;
@@ -487,7 +516,7 @@ async function getPlayerGames(player) {
       tourney: tourney,
       game: game,
     };
-    if (["D","D+"].includes(mode)) {
+    if (["D", "D+"].includes(mode)) {
       seatDict = seatDictDuo;
     } else {
       seatDict = seatDictReg;
@@ -499,10 +528,10 @@ async function getPlayerGames(player) {
 
       role = roleDict[sheet.getCellByA1(`${seatDict[seat]}${i}`).value].Role;
       team = roleDict[sheet.getCellByA1(`${seatDict[seat]}${i}`).value].Team;
-      if (["D","D+"].includes(mode) && seat.length > 1) {
-        role = role + "-C"
+      if (["D", "D+"].includes(mode) && seat.length > 1) {
+        role = role + "-C";
       }
-      
+
       playerGames[game_key] = {
         role: role,
         team: team,
