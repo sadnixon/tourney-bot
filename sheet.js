@@ -61,13 +61,13 @@ async function nameSheetLoader() {
   await namesdoc.loadInfo();
   await namesdoc.sheetsByTitle["Names By Tourney"].loadCells("P1:AA409");
   const names = namesdoc.sheetsByTitle["Names By Tourney"];
-  const namerows = await names.getRows();
+  //const namerows = await names.getRows();
   const namecolumns = ["R", "S", "T", "U", "V", "W", "X", "Y"];
 
   await ids_dictionary.clear();
   await names_dictionary.clear();
 
-  for (let i = 2; i < namerows.length + 2; i++) {
+  for (let i = 2; i < 393; i++) {
     await new Promise(r => setTimeout(r, 50));
     for (const j of namecolumns) {
       if (names.getCellByA1(`${j}${i}`).value === null) {
@@ -588,7 +588,7 @@ async function getPlayers() {
 
 async function getGlobalPlayer2(player) {
   const sheet = globaldoc.sheetsByTitle["Personal Stats"];
-  const rows = await sheet.getRows();
+  //const rows = await sheet.getRows();
   const currentsheet = doc.sheetsByTitle["Personal Scores + Stats 🧮"];
   let canonName = player.canon;
   let globalIndex = player.index;
@@ -610,7 +610,7 @@ async function getGlobalPlayer2(player) {
       }
     }
   }
-  if (globalIndex < rows.length) {
+  if (globalIndex < 395) {
     pastInfo.push(
       ..._.range(0, 131).map(
         (entry) => sheet.getCell(globalIndex + 3, entry).value
