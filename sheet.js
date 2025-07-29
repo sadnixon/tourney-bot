@@ -68,6 +68,7 @@ async function nameSheetLoader() {
   await names_dictionary.clear();
 
   for (let i = 2; i < namerows.length + 2; i++) {
+    await new Promise(r => setTimeout(r, 50));
     for (const j of namecolumns) {
       if (names.getCellByA1(`${j}${i}`).value === null) {
         break;
@@ -160,6 +161,7 @@ async function gamesDictLoader() {
   let game_key = "";
 
   for (let i = 3; i < 705; i++) {
+    await new Promise(r => setTimeout(r, 50));
     if (resultsRoles.getCellByA1(`A${i}`).value !== null) {
       tourney++;
     }
