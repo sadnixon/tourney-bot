@@ -7,7 +7,13 @@ const errorMessage = (message) => {
   return new Discord.MessageEmbed().setDescription(message).setColor("#ff0000");
 };
 
-const rank = (competitorList, column, secondary = false, limit = 10, start = 1) => {
+const rank = (
+  competitorList,
+  column,
+  secondary = false,
+  limit = 10,
+  start = 1
+) => {
   // assume competitorList is sorted by column
   // returns rank of each competitor (i and j have the same rank if i[column] === j[column])
   const ranks = [];
@@ -50,7 +56,7 @@ async function alertMessage(client, mods = false) {
   const games2 = await sheet.getGames();
   const currentGame = games2.find((g) => !g.played);
   const schedule = await sheet.getSchedule();
-  const gametimes = _.range(0, 10)
+  const gametimes = _.range(0, 11)
     .map((day) => schedule[day].games)
     .flat();
   const currentTime = gametimes
@@ -81,7 +87,7 @@ async function alertMessage(client, mods = false) {
             currentTime / 1000
           }:R>. Are your players ready?`
         );
-    } else if (["Duo", "Duo+"].includes(currentType)) {
+    } else if (["Duo", "Duo+", "DuoSpecial"].includes(currentType)) {
       await guild.channels.cache
         .get(team[1])
         .send(

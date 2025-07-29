@@ -39,12 +39,17 @@ async function scheduleEmbed(dayNumber, footer) {
           if (
             game.type === "Silent" ||
             game.type === "Silent+" ||
+            game.type === "Silent Special" ||
             game.type === "Bullet" ||
+            game.type === "Blitz" ||
+            game.type === "Team Pick G - Silent" ||
             game.type === "Mystery Special" ||
             game.type === "Birthday"
           ) {
             const gameInfos = games.filter((g) => g.number === game.number);
-            const gameInfosPlayed = gameInfos.map((gameInfo) => gameInfo.played);
+            const gameInfosPlayed = gameInfos.map(
+              (gameInfo) => gameInfo.played
+            );
             const played = gameInfosPlayed.every(Boolean);
 
             return {
@@ -81,7 +86,7 @@ async function scheduleEmbed(dayNumber, footer) {
 async function execute(message, args, user) {
   const currentDate = new Date();
   let dayNumber = Math.min(
-    10,
+    11,
     Math.max(
       1,
       currentDate.getUTCHours() < 9 // day changes at 9AM UTC
@@ -102,7 +107,7 @@ async function execute(message, args, user) {
     return;
   }
 
-  if (dayNumber < 1 || dayNumber > 10) {
+  if (dayNumber < 1 || dayNumber > 11) {
     message.channel.send(
       errorMessage(`Could not find a schedule for day ${dayNumber}.`)
     );
@@ -125,7 +130,7 @@ async function execute(message, args, user) {
       if (reaction.emoji.name === "◀") {
         dayNumber = Math.max(dayNumber - 1, 1);
       } else {
-        dayNumber = Math.min(dayNumber + 1, 10);
+        dayNumber = Math.min(dayNumber + 1, 11);
       }
       const newEmbed = await scheduleEmbed(dayNumber, footer);
       emb.edit(newEmbed);

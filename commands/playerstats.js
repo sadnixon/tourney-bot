@@ -39,13 +39,9 @@ async function execute(message, args, user) {
       args[0].substr(0, 2) === "<@" &&
       args[0].charAt(args[0].length - 1) === ">"
     ) {
-      player = await ids_dictionary.get(
-        args[0].substr(2, args[0].length - 3)
-      );
+      player = await ids_dictionary.get(args[0].substr(2, args[0].length - 3));
     } else {
-      player = await names_dictionary.get(
-        args.join("").toLowerCase()
-      );
+      player = await names_dictionary.get(args.join("").toLowerCase());
     }
   }
   if (player == null) {
@@ -80,13 +76,14 @@ async function execute(message, args, user) {
       "T10",
       "T11",
       "T12",
+      "T13",
     ];
-    const wins = playerInfo[2][58] || 0;
+    const wins = playerInfo[2][59] || 0;
     let tourneyIndices = [];
     if (playerInfo[2].length > 0) {
       for (let i = 0; i < tourneyNames.length; i++) {
         // Has to be number of past tournies
-        if (playerInfo[2][65 + i * 5]) {
+        if (playerInfo[2][66 + i * 5]) {
           tourneyIndices.push(i);
         }
       }
@@ -110,16 +107,16 @@ async function execute(message, args, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][65 + entry * 5]
-                    } - ${playerInfo[2][68 + entry * 5]} pts (${roundToThirds(
-                      playerInfo[2][67 + entry * 5]
-                    )}/${playerInfo[2][66 + entry * 5]})`
+                      playerInfo[2][66 + entry * 5]
+                    } - ${playerInfo[2][69 + entry * 5]} pts (${roundToThirds(
+                      playerInfo[2][68 + entry * 5]
+                    )}/${playerInfo[2][67 + entry * 5]})`
                 )
                 .join("\n") +
-              `\nT13: ${playerInfo[1][0]} - ${
+              `\nT14: ${playerInfo[1][0]} - ${
                 playerInfo[1][5]
               } pts (${roundToThirds(playerInfo[1][3])}/${playerInfo[1][2]})`
-            : `**Rookie Tourney**\n\nT13: ${playerInfo[1][0]} - ${
+            : `**Rookie Tourney**\n\nT14: ${playerInfo[1][0]} - ${
                 playerInfo[1][5]
               } pts (${roundToThirds(playerInfo[1][3])}/${playerInfo[1][2]})`
           : `**Overall Points:** ${
@@ -133,10 +130,10 @@ async function execute(message, args, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][65 + entry * 5]
-                    } - ${playerInfo[2][68 + entry * 5]} pts (${roundToThirds(
-                      playerInfo[2][67 + entry * 5]
-                    )}/${playerInfo[2][66 + entry * 5]})`
+                      playerInfo[2][66 + entry * 5]
+                    } - ${playerInfo[2][69 + entry * 5]} pts (${roundToThirds(
+                      playerInfo[2][68 + entry * 5]
+                    )}/${playerInfo[2][67 + entry * 5]})`
                 )
                 .join("\n")
       )
