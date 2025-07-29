@@ -79,10 +79,14 @@ for (const file of commandFiles) {
 client.once("ready", () => {
   client.user.setActivity(`${PREFIX}info`, { type: "WATCHING" });
   console.log("Ready!");
-  scheduler();
-  sheet.nameSheetLoader();
-  sheet.gamesDictLoader();
+  startupStuff();
 });
+
+async function startupStuff() {
+  await scheduler();
+  await sheet.nameSheetLoader();
+  await sheet.gamesDictLoader();
+}
 
 async function scheduler() {
   await sheet.loadSheet();
@@ -105,9 +109,9 @@ async function scheduler() {
         const hour = before_game.getUTCHours();
         const date = before_game.getUTCDate();
         const month = before_game.getUTCMonth();
-        console.log(`${minute} ${hour} ${date} ${month+1} *`);
+        console.log(`${minute} ${hour} ${date} ${month + 1} *`);
         cron.schedule(
-          `${minute} ${hour} ${date} ${month+1} *`,
+          `${minute} ${hour} ${date} ${month + 1} *`,
           () => {
             alertMessage(client, true);
           },
