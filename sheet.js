@@ -33,7 +33,7 @@ async function loadSheet() {
   await doc.loadInfo();
   await doc.sheetsByTitle["Team Stats 🧮"].loadCells("B11:E17"); //The borders of the Leaderboard on main sheet
   await doc.sheetsByTitle["Leaderboard 🥇"].loadCells("X3:AA3"); //The borders of the Schedule on main sheet
-  await doc.sheetsByTitle["Importer"].loadCells("A1:BH78"); //The relevant portion of the Importer
+  await doc.sheetsByTitle["Importer"].loadCells("A1:BH80"); //The relevant portion of the Importer
   await doc.sheetsByTitle["Personal Scores + Stats 🧮"].loadCells("A1:O108"); //The borders of the Personal Scores Block
   await doc.sheetsByTitle["Fantasy League 🔮"].loadCells("B72:I134"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
