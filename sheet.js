@@ -480,7 +480,7 @@ async function getSchedule() {
 async function getGames() {
   const sheet = doc.sheetsByTitle["Importer"];
   const emojis = await getTeamEmojis();
-  return _.range(2, 75) //Has to be one more than the number of rows in Inporter
+  return _.range(2, 79) //Has to be one more than the number of rows in Inporter
     .map((row) => {
       if (sheet.getCell(row, 1).value === null) return null;
 
@@ -656,7 +656,7 @@ async function getPlayerGames(player) {
   let team = "";
   let game_key = "";
 
-  for (let i = 3; i < 75; i++) {
+  for (let i = 3; i < 79; i++) {
     if (sheet.getCellByA1(`H${i}`).value !== "GO") {
       break;
     }
