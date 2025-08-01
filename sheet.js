@@ -521,10 +521,14 @@ async function getGames() {
 
       const winner = sheet.getCell(row, 10).value.replace(/\s/g, "");
       const fasWin = winner === "Fascist";
-      const hitler = sheet.getCell(row, 60).value;
-      const fascist1 = sheet.getCell(row, 58).value;
-      const fascist2 = sheet.getCell(row, 59).value;
+      
       let players = _.range(0, 7).map(
+        (i) => sheet.getCell(row, 37 + i).value
+      );
+      const fascist1 = players.indexOf(sheet.getCell(row, 58).value);
+      const fascist2 = players.indexOf(sheet.getCell(row, 59).value);
+      const hitler = players.indexOf(sheet.getCell(row, 60).value);
+      let emojiPlayers = _.range(0, 7).map(
         (i) => `${emojis[i]} ${sheet.getCell(row, 37 + i).value}`
       );
       let coaches;
@@ -532,13 +536,13 @@ async function getGames() {
         coaches = _.range(0, 7).map(
           (i) => `${sheet.getCell(row, 20 + i).value}`
         );
-        players = _.range(0, 7).map((i) => `${players[i]} (${coaches[i]})`);
+        emojiPlayers = _.range(0, 7).map((i) => `${emojiPlayers[i]} (${coaches[i]})`);
       } else {
         coaches = false;
       }
 
-      const fascists = [hitler, fascist1, fascist2];
-      const liberals = players.filter((p) => !fascists.includes(p));
+      const fascists = [emojiPlayers[hitler], emojiPlayers[fascist1], emojiPlayers[fascist2]];
+      const liberals = emojiPlayers.filter((p) => !fascists.includes(p));
       let winners = [];
       if (fasWin) {
         winners = fascists;
