@@ -525,7 +525,7 @@ async function getGames() {
       const fascist1 = parseInt(sheet.getCell(row, 58).value) - 1;
       const fascist2 = parseInt(sheet.getCell(row, 59).value) - 1;
       let players = _.range(0, 7).map(
-        (i) => `${emojis[i]} ${sheet.getCell(row, 13 + i).value}`
+        (i) => `${emojis[i]} ${sheet.getCell(row, 37 + i).value}`
       );
       let coaches;
       if (["Duo", "Duo+", "DuoSpecial"].includes(mode)) {
@@ -623,13 +623,13 @@ async function getGlobalPlayer2(player) {
 async function getPlayerGames(player) {
   const sheet = doc.sheetsByTitle["Importer"];
   const seatDict = {
-    N: "AS",
-    O: "AT",
-    P: "AU",
-    Q: "AV",
-    R: "AW",
-    S: "AX",
-    T: "AY",
+    AL: "AS",
+    AM: "AT",
+    AN: "AU",
+    AO: "AV",
+    AP: "AW",
+    AQ: "AX",
+    AR: "AY",
   };
   let gameDict;
   let playerGames;
