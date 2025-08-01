@@ -33,7 +33,7 @@ async function loadSheet() {
   await doc.loadInfo();
   await doc.sheetsByTitle["Team Stats 🧮"].loadCells("B11:E17"); //The borders of the Leaderboard on main sheet
   await doc.sheetsByTitle["Leaderboard 🥇"].loadCells("X3:AA3"); //The borders of the Schedule on main sheet
-  await doc.sheetsByTitle["Importer"].loadCells("A1:BH80"); //The relevant portion of the Importer
+  await doc.sheetsByTitle["Importer"].loadCells("A1:BI80"); //The relevant portion of the Importer
   await doc.sheetsByTitle["Personal Scores + Stats 🧮"].loadCells("A1:O108"); //The borders of the Personal Scores Block
   await doc.sheetsByTitle["Fantasy League 🔮"].loadCells("B72:I134"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
@@ -521,9 +521,9 @@ async function getGames() {
 
       const winner = sheet.getCell(row, 10).value.replace(/\s/g, "");
       const fasWin = winner === "Fascist";
-      const hitler = parseInt(sheet.getCell(row, 9).value) - 1;
-      const fascist1 = parseInt(sheet.getCell(row, 58).value) - 1;
-      const fascist2 = parseInt(sheet.getCell(row, 59).value) - 1;
+      const hitler = sheet.getCell(row, 60).value;
+      const fascist1 = sheet.getCell(row, 58).value;
+      const fascist2 = sheet.getCell(row, 59).value;
       let players = _.range(0, 7).map(
         (i) => `${emojis[i]} ${sheet.getCell(row, 37 + i).value}`
       );
@@ -537,7 +537,7 @@ async function getGames() {
         coaches = false;
       }
 
-      const fascists = [players[hitler], players[fascist1], players[fascist2]];
+      const fascists = [hitler, fascist1, fascist2];
       const liberals = players.filter((p) => !fascists.includes(p));
       let winners = [];
       if (fasWin) {
