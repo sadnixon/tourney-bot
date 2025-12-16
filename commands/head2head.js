@@ -3,25 +3,6 @@ const sheet = require("../sheet");
 const { errorMessage, rank, roundToThirds } = require("../message-helpers");
 
 async function execute(message, args, user) {
-  //hehe easter egg
-  if (
-    (message.author.id === "388116178268192768" &&
-      args &&
-      args[0].toLowerCase() === "alienna") ||
-    (message.author.id === "556674215487733780" &&
-      args &&
-      ["nixon", "sadnixon"].includes(args[0].toLowerCase())) ||
-    (args &&
-      args.length > 1 &&
-      ["nixon", "sadnixon", "alienna"].includes(args[0].toLowerCase()) &&
-      ["nixon", "sadnixon", "alienna"].includes(args[1].toLowerCase()))
-  ) {
-    const embed = new Discord.MessageEmbed()
-        .setTitle(`Head 2 Head Record: SadNixon - Alienna`)
-        .setDescription("**Total E-Kisses:** 32247578943\n**Attraction Level:**100%")
-        .setFooter(`Updated ${user.updateTime}`);
-      return message.channel.send(embed);
-  }
 
   let player1;
   let player2;

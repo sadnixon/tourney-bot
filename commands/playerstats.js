@@ -33,12 +33,6 @@ async function execute(message, args, user) {
       .setDescription("**Who?**")
       .setFooter(`Updated ${user.updateTime}`);
     return message.channel.send(embed);
-  } else if (args.join("").toLowerCase() === "alienna") {
-    const embed = new Discord.MessageEmbed()
-      .setTitle("LIG Statistics for Alienna")
-      .setDescription("**Overall Hearts Of American Nerds Won:** 1/1 (100%) :light_blue_heart:")
-      .setFooter(`Updated ${user.updateTime}`);
-    return message.channel.send(embed);
   }
 
   if (args.length > 0) {
@@ -84,9 +78,11 @@ async function execute(message, args, user) {
       "T8",
       "T9",
       "T10",
+      "T11",
       "8p T1",
       "8p T2",
-      "T11",
+      "8p T3",
+      "T12",
     ];
     const wins = playerInfo[2][54] || 0; //Must be the number of the global sheet column for tourney 1sts
     const avgPlace = playerInfo[2][63] || 0;
@@ -127,19 +123,19 @@ async function execute(message, args, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][64 + entry * 6 + (entry > 9) * 1]
+                      playerInfo[2][64 + entry * 6 + (entry > 10) * 1]
                     } - ${
-                      playerInfo[2][68 + entry * 6 + (entry > 9) * 1]
+                      playerInfo[2][68 + entry * 6 + (entry > 10) * 1]
                     } pts *${
-                      playerInfo[2][69 + entry * 6 + (entry > 9) * 1]
+                      playerInfo[2][69 + entry * 6 + (entry > 10) * 1]
                     } adj.* (${
-                      playerInfo[2][67 + entry * 6 + (entry > 9) * 1]
-                    }/${playerInfo[2][66 + entry * 6 + (entry > 9) * 1]})`
+                      playerInfo[2][67 + entry * 6 + (entry > 10) * 1]
+                    }/${playerInfo[2][66 + entry * 6 + (entry > 10) * 1]})`
                 )
                 .join("\n") +
-              `\nT11: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
+              `\nT12: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
             : //Case where player has only present records
-              `**Rookie Tourney**\n\nT11: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
+              `**Rookie Tourney**\n\nT12: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
           : //Case where player has only past records
             `**Overall Points:** ${
               playerInfo[2][3]
@@ -157,14 +153,14 @@ async function execute(message, args, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][64 + entry * 6 + (entry > 9) * 1]
+                      playerInfo[2][64 + entry * 6 + (entry > 10) * 1]
                     } - ${
-                      playerInfo[2][68 + entry * 6 + (entry > 9) * 1]
+                      playerInfo[2][68 + entry * 6 + (entry > 10) * 1]
                     } pts *${
-                      playerInfo[2][69 + entry * 6 + (entry > 9) * 1]
+                      playerInfo[2][69 + entry * 6 + (entry > 10) * 1]
                     } adj.* (${
-                      playerInfo[2][67 + entry * 6 + (entry > 9) * 1]
-                    }/${playerInfo[2][66 + entry * 6 + (entry > 9) * 1]})`
+                      playerInfo[2][67 + entry * 6 + (entry > 10) * 1]
+                    }/${playerInfo[2][66 + entry * 6 + (entry > 10) * 1]})`
                 )
                 .join("\n")
       )

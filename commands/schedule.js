@@ -58,16 +58,16 @@ async function execute(message, args, user) {
   if (currentDate.getTime() < startDate.getTime()) {
     dayNumber = 1;
   } else if (currentDate.getTime() > endDate.getTime()) {
-    dayNumber = 9;
+    dayNumber = 8;
   } else {
     dayNumber = Math.min(
-      9,
+      8,
       Math.max(
         1,
-        currentDate.getUTCDate() - (await getStartDay()) + 1
-        //currentDate.getUTCHours() < 9 // day changes at 9AM UTC
-        //  ? currentDate.getUTCDate() - (await getStartDay())
-        //  : currentDate.getUTCDate() - (await getStartDay()) + 1
+        //currentDate.getUTCDate() - (await getStartDay()) + 1
+        currentDate.getUTCHours() < 9 // day changes at 9AM UTC
+          ? currentDate.getUTCDate() - (await getStartDay())
+          : currentDate.getUTCDate() - (await getStartDay()) + 1
       )
     );
   }
@@ -84,7 +84,7 @@ async function execute(message, args, user) {
     return;
   }
 
-  if (dayNumber < 1 || dayNumber > 9) {
+  if (dayNumber < 1 || dayNumber > 8) {
     message.channel.send(
       errorMessage(`Could not find a schedule for day ${dayNumber}.`)
     );
@@ -107,7 +107,7 @@ async function execute(message, args, user) {
       if (reaction.emoji.name === "◀") {
         dayNumber = Math.max(dayNumber - 1, 1);
       } else {
-        dayNumber = Math.min(dayNumber + 1, 9);
+        dayNumber = Math.min(dayNumber + 1, 8);
       }
       const newEmbed = await scheduleEmbed(dayNumber, footer);
       emb.edit(newEmbed);
