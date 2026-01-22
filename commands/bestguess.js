@@ -74,8 +74,13 @@ async function execute(message, args, user) {
             ).toFixed(1)}`;
           }
 
+          let gameTitle = args[0].toUpperCase();
+          if (gameTitle === "0A") {
+            gameTitle = "Cap";
+          }
+
           const embed = new Discord.MessageEmbed()
-            .setTitle(`Best Guess For Game ${args[0].toUpperCase()}`)
+            .setTitle(`Best Guess For Game ${gameTitle}`)
             .setDescription(
               `<@${guessInfo.bestRow[1]}>\nGuess: ${
                 guessInfo.bestRow[2]
