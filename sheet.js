@@ -576,15 +576,15 @@ async function getPlayers() {
   const players = [];
   let teamName = "";
   for (let i = 0; i < 13 * 7; i++) {
-    teamName = sheet.getCell(i + 10, 2).value || teamName;
+    teamName = sheet.getCell(i + 9, 1).value || teamName;
     players.push({
-      name: sheet.getCell(i + 10, 3).value,
+      name: sheet.getCell(i + 9, 3).value,
       teamName,
-      gamesPlayed: sheet.getCell(i + 10, 4).value,
-      gamesWon: sheet.getCell(i + 10, 5).value,
-      winrate: sheet.getCell(i + 10, 6).value,
-      personalScore: sheet.getCell(i + 10, 7).value,
-      darkHorse: sheet.getCell(i + 10, 13).value,
+      gamesPlayed: sheet.getCell(i + 9, 4).value,
+      gamesWon: sheet.getCell(i + 9, 5).value,
+      winrate: sheet.getCell(i + 9, 6).value,
+      personalScore: sheet.getCell(i + 9, 7).value,
+      darkHorse: sheet.getCell(i + 9, 13).value,
       // deductionValue: sheet.getCell(i + 8, 8).value,
       // gameDeductions: sheet.getCell(i + 8, 9).value,
       // personalDeductions: sheet.getCell(i + 8, 10).value,
