@@ -5,8 +5,8 @@ async function execute(message, args, user) {
   if (user.isAuthorized) {
     let eventGeneral = message.guild.channels.cache.get("599756425241296897");
 
-    const startTime = new Date(Date.UTC(2025, 6, 31, 0));
-    const endTime = new Date(Date.UTC(2025, 7, 12, 0));
+    const startTime = new Date(Date.UTC(2026, 0, 18, 2));
+    const endTime = new Date(Date.UTC(2026, 1, 3, 0));
 
     let authorDict = {};
 
