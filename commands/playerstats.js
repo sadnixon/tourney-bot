@@ -79,10 +79,11 @@ async function execute(message, args, user) {
       "T9",
       "T10",
       "T11",
+      "T12",
       "8p T1",
       "8p T2",
       "8p T3",
-      "T12",
+      "T13",
     ];
     const wins = playerInfo[2][54] || 0; //Must be the number of the global sheet column for tourney 1sts
     const avgPlace = playerInfo[2][63] || 0;
@@ -123,19 +124,19 @@ async function execute(message, args, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][64 + entry * 6 + (entry > 10) * 1]
+                      playerInfo[2][64 + entry * 6 + (entry > 11) * 1]
                     } - ${
-                      playerInfo[2][68 + entry * 6 + (entry > 10) * 1]
+                      playerInfo[2][68 + entry * 6 + (entry > 11) * 1]
                     } pts *${
-                      playerInfo[2][69 + entry * 6 + (entry > 10) * 1]
+                      playerInfo[2][69 + entry * 6 + (entry > 11) * 1]
                     } adj.* (${
-                      playerInfo[2][67 + entry * 6 + (entry > 10) * 1]
-                    }/${playerInfo[2][66 + entry * 6 + (entry > 10) * 1]})`
+                      playerInfo[2][67 + entry * 6 + (entry > 11) * 1]
+                    }/${playerInfo[2][66 + entry * 6 + (entry > 11) * 1]})`
                 )
                 .join("\n") +
-              `\nT12: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
+              `\nT13: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
             : //Case where player has only present records
-              `**Rookie Tourney**\n\nT12: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
+              `**Rookie Tourney**\n\nT13: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
           : //Case where player has only past records
             `**Overall Points:** ${
               playerInfo[2][3]
@@ -153,14 +154,14 @@ async function execute(message, args, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][64 + entry * 6 + (entry > 10) * 1]
+                      playerInfo[2][64 + entry * 6 + (entry > 11) * 1]
                     } - ${
-                      playerInfo[2][68 + entry * 6 + (entry > 10) * 1]
+                      playerInfo[2][68 + entry * 6 + (entry > 11) * 1]
                     } pts *${
-                      playerInfo[2][69 + entry * 6 + (entry > 10) * 1]
+                      playerInfo[2][69 + entry * 6 + (entry > 11) * 1]
                     } adj.* (${
-                      playerInfo[2][67 + entry * 6 + (entry > 10) * 1]
-                    }/${playerInfo[2][66 + entry * 6 + (entry > 10) * 1]})`
+                      playerInfo[2][67 + entry * 6 + (entry > 11) * 1]
+                    }/${playerInfo[2][66 + entry * 6 + (entry > 11) * 1]})`
                 )
                 .join("\n")
       )

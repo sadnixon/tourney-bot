@@ -1,10 +1,15 @@
+const subRegex = new RegExp("[abAB]{1}");
 const { getGameNumber } = require("../constants");
 const { errorMessage } = require("../message-helpers");
 
 async function execute(message, args, user) {
   const gameNumber = await getGameNumber();
   if (!(await guess_information.get("open")) && user.isAuthorized) {
-    if (args.length === 6 || (args.length === 13 && args[0] === "final")) {
+    if (
+      args.length === 6 ||
+      (args.length === 7 && subRegex.test(args[0])) ||
+      (args.length === 13 && args[0] === "final")
+    ) {
       message.channel.send("Guessing Opened!");
       //open = !open;
       await guess_information.clear();
@@ -19,6 +24,10 @@ async function execute(message, args, user) {
           args.slice(7, 13),
         ]);
         //guessOptions = [args.slice(1,7),args.slice(7,13)];
+      } else if (args.length === 7 && subRegex.test(args[0])) {
+        await guess_information.set("finalGame", false);
+        await guess_information.set("subGameIndicator", args[0].toLowerCase());
+        await guess_information.set("guessOptions", args.slice(1, 7));
       } else {
         //guessOptions = args;
         await guess_information.set("finalGame", false);
@@ -27,8 +36,8 @@ async function execute(message, args, user) {
     } else {
       return message.channel.send(
         errorMessage(
-          "Incorrect or no parameters. Remember to list all player usernames separated by spaces."
-        )
+          "Incorrect or no parameters. Remember to list all player usernames separated by spaces.",
+        ),
       );
     }
   }

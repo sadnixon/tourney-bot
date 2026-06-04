@@ -11,6 +11,7 @@ async function execute(message, args, user) {
   const vcTextTwo = await getTournamentVCTextTwo();
   const gameNumber = await getGameNumber();
   const guessOptions = await guess_information.get("guessOptions");
+  const subGameIndicator = await guess_information.get("subGameIndicator");
   const finalGame = await guess_information.get("finalGame");
   if (
     message.channel.id !== "855806852108255292" &&
@@ -21,18 +22,18 @@ async function execute(message, args, user) {
     message.delete();
     message.channel.send(
       errorMessage(
-        "Merlin guesses can only be made in #tournament-vc-text or DMs."
-      )
+        "Merlin guesses can only be made in #tournament-vc-text or DMs.",
+      ),
     );
   } else if (!(await guess_information.get("open"))) {
     message.channel.send(
-      errorMessage("Merlin guesses can only be made during in-progress games.")
+      errorMessage("Merlin guesses can only be made during in-progress games."),
     );
   } else if (currentGame.number === gameNumber - 1 && args.length === 1) {
     message.channel.send(
       errorMessage(
-        "Must include a valid game number, for example, s!gm wanglebangle 43."
-      )
+        "Must include a valid game number, for example, s!gm wanglebangle 43.",
+      ),
     );
   } else if (
     args.length === 2 &&
@@ -55,9 +56,9 @@ async function execute(message, args, user) {
     ]);
     await guess_information.set(
       "guessIDs",
-      (
-        await guess_information.get("guessIDs")
-      ).concat([message.author.id + "_" + args[1]])
+      (await guess_information.get("guessIDs")).concat([
+        message.author.id + "_" + args[1],
+      ]),
     );
     if (!isdm) {
       message.delete();
@@ -69,21 +70,28 @@ async function execute(message, args, user) {
     args.length === 1 &&
     guessOptions.map((opt) => opt.toLowerCase()).includes(args[0].toLowerCase())
   ) {
-    //guessDict[message.author.id] = [
-    //  timestamp,
-    //  message.author.id,
-    //  args[0],
-    //  currentGame.number,
-    //];
-    await guess_information.set(message.author.id, [
-      timestamp,
-      message.author.id,
-      args[0],
-      currentGame.number,
-    ]);
+    
+    if (subGameIndicator) {
+      const subIndicatorList = ["a", "b"];
+      await guess_information.set(message.author.id, [
+        timestamp,
+        message.author.id,
+        args[0],
+        currentGame.number +
+          (1 + subIndicatorList.indexOf(subGameIndicator)) / 10,
+      ]);
+    } else {
+      await guess_information.set(message.author.id, [
+        timestamp,
+        message.author.id,
+        args[0],
+        currentGame.number,
+      ]);
+    }
+
     await guess_information.set(
       "guessIDs",
-      (await guess_information.get("guessIDs")).concat([message.author.id])
+      (await guess_information.get("guessIDs")).concat([message.author.id]),
     );
     if (!isdm) {
       message.delete();

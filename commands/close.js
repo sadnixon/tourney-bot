@@ -30,6 +30,7 @@ async function execute(message, args, user) {
       message.channel.send("Guessing Closed.");
       //open = !open;
       await guess_information.set("open", false);
+      await guess_information.set("subGameIndicator", false);
       sheet.dumpGuesses(guess_information);
     } else {
       return message.channel.send(errorMessage("Incorrect or no parameters."));

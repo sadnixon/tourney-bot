@@ -145,6 +145,9 @@ client.on("message", async (message) => {
   if (!(await guess_information.get("guessOptions"))) {
     await guess_information.set("guessOptions", false);
   }
+  if (!(await guess_information.get("subGameIndicator"))) {
+    await guess_information.set("subGameIndicator", false);
+  }
   if (!(await guess_information.get("finalGame"))) {
     await guess_information.set("finalGame", false);
   }

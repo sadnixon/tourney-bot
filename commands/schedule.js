@@ -9,15 +9,15 @@ async function scheduleEmbed(dayNumber, footer) {
   const schedule = await sheet.getSchedule();
 
   const daySchedule = schedule.find(
-    (day) => day.number === parseInt(dayNumber)
+    (day) => day.number === parseInt(dayNumber),
   );
   const games = await sheet.getGames();
   return new Discord.MessageEmbed()
     .setTitle(
       `Day ${dayNumber}: ${format(
         utcToZonedTime(daySchedule.date, "UTC"),
-        "eee, LLL do"
-      )}`
+        "eee, LLL do",
+      )}`,
     )
     .setDescription("All times are shown in your local timezone:")
     .addFields(
@@ -33,16 +33,36 @@ async function scheduleEmbed(dayNumber, footer) {
           const gameHeader = `Game ${game.number} (${game.type}), <t:${
             game.time / 1000
           }:t>`;
-          const gameInfo = games.find((g) => g.number === game.number);
-          return {
-            name: gameHeader,
-            value: gameInfo.played
-              ? `${
-                  gameInfo.spyWin ? "Spy win" : "Resistance win"
-                }: ${gameInfo.winners.join(", ")}`
-              : timeMessage,
-          };
-        })
+          if (game.type === "Bullet" || game.type === "Bullet +") {
+            const gameInfos = games.filter((g) => g.number === game.number);
+            const gameInfosPlayed = gameInfos.map(
+              (gameInfo) => gameInfo.played,
+            );
+            const played = gameInfosPlayed.every(Boolean);
+
+            return {
+              name: gameHeader,
+              value: played
+                ? gameInfos.map(
+                    (gameInfo) =>
+                      `${gameInfo.subGame}: ${
+                        gameInfo.spyWin ? "Spy win" : "Resistance win"
+                      }: ${gameInfo.winners.join(", ")}`,
+                  )
+                : timeMessage,
+            };
+          } else {
+            const gameInfo = games.find((g) => g.number === game.number);
+            return {
+              name: gameHeader,
+              value: gameInfo.played
+                ? `${
+                    gameInfo.spyWin ? "Spy win" : "Resistance win"
+                  }: ${gameInfo.winners.join(", ")}`
+                : timeMessage,
+            };
+          }
+        }),
     )
     .setFooter(footer);
 }
@@ -53,22 +73,22 @@ async function execute(message, args, user) {
   const START_DAY = await getStartDay();
   const currentDate = new Date();
   const startDate = new Date(Date.UTC(YEAR, MONTH, START_DAY));
-  const endDate = new Date(Date.UTC(YEAR, MONTH, START_DAY + 8));
+  const endDate = new Date(Date.UTC(YEAR, MONTH, START_DAY + 10));
   let dayNumber;
   if (currentDate.getTime() < startDate.getTime()) {
     dayNumber = 1;
   } else if (currentDate.getTime() > endDate.getTime()) {
-    dayNumber = 8;
+    dayNumber = 10;
   } else {
     dayNumber = Math.min(
-      8,
+      10,
       Math.max(
         1,
         //currentDate.getUTCDate() - (await getStartDay()) + 1
         currentDate.getUTCHours() < 9 // day changes at 9AM UTC
           ? currentDate.getUTCDate() - (await getStartDay())
-          : currentDate.getUTCDate() - (await getStartDay()) + 1
-      )
+          : currentDate.getUTCDate() - (await getStartDay()) + 1,
+      ),
     );
   }
   if (args.length > 0) {
@@ -78,15 +98,15 @@ async function execute(message, args, user) {
   if (!dayNumber) {
     message.channel.send(
       errorMessage(
-        "Please enter a day (e.g. 1) or leave blank to use the current day."
-      )
+        "Please enter a day (e.g. 1) or leave blank to use the current day.",
+      ),
     );
     return;
   }
 
-  if (dayNumber < 1 || dayNumber > 8) {
+  if (dayNumber < 1 || dayNumber > 10) {
     message.channel.send(
-      errorMessage(`Could not find a schedule for day ${dayNumber}.`)
+      errorMessage(`Could not find a schedule for day ${dayNumber}.`),
     );
     return;
   }
@@ -107,12 +127,12 @@ async function execute(message, args, user) {
       if (reaction.emoji.name === "◀") {
         dayNumber = Math.max(dayNumber - 1, 1);
       } else {
-        dayNumber = Math.min(dayNumber + 1, 8);
+        dayNumber = Math.min(dayNumber + 1, 10);
       }
       const newEmbed = await scheduleEmbed(dayNumber, footer);
       emb.edit(newEmbed);
       const userReactions = emb.reactions.cache.filter((reaction) =>
-        reaction.users.cache.has(author.id)
+        reaction.users.cache.has(author.id),
       );
       try {
         for (const reaction of userReactions.values()) {
@@ -129,8 +149,8 @@ async function execute(message, args, user) {
     console.error(err);
     message.channel.send(
       errorMessage(
-        "😔 There was an error making your request. Please try again in a bit."
-      )
+        "😔 There was an error making your request. Please try again in a bit.",
+      ),
     );
   }
 }
