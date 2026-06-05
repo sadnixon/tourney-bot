@@ -316,20 +316,29 @@ async function getBestGuess(game) {
   let guesserList = [];
   for (let i = 2; i < 2000; i++) {
     if (sheet.getCellByA1(`A${i}`).value === null) break;
+    console.log(parseFloat(sheet.getCellByA1(`D${i}`).value));
+    console.log(game);
     if (
-      sheet.getCellByA1(`D${i}`).value === game &&
+      (parseFloat(sheet.getCellByA1(`D${i}`).value) === game) &&
       sheet.getCellByA1(`F${i}`).value === 1
     ) {
       guesserList.push(sheet.getCellByA1(`B${i}`).value);
     }
   }
+  let sheetIdx = 0;
+  for (let i = 2; i < 50; i++) {
+    if (parseFloat(sheet2.getCellByA1(`A${i}`).value) === game) {
+      sheetIdx = i;
+      break;
+    }
+  }
   return {
     guesserList,
-    merlin: sheet2.getCellByA1(`C${game + 1}`).value,
-    average: sheet2.getCellByA1(`E${game + 1}`).value,
-    guessnum: sheet2.getCellByA1(`F${game + 1}`).value,
-    falsenum: sheet2.getCellByA1(`G${game + 1}`).value,
-    mostfalse: sheet2.getCellByA1(`H${game + 1}`).value,
+    merlin: sheet2.getCellByA1(`C${sheetIdx}`).value,
+    average: sheet2.getCellByA1(`E${sheetIdx}`).value,
+    guessnum: sheet2.getCellByA1(`F${sheetIdx}`).value,
+    falsenum: sheet2.getCellByA1(`G${sheetIdx}`).value,
+    mostfalse: sheet2.getCellByA1(`H${sheetIdx}`).value,
   };
 }
 
