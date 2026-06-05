@@ -316,8 +316,6 @@ async function getBestGuess(game) {
   let guesserList = [];
   for (let i = 2; i < 2000; i++) {
     if (sheet.getCellByA1(`A${i}`).value === null) break;
-    console.log(parseFloat(sheet.getCellByA1(`D${i}`).value));
-    console.log(game);
     if (
       (parseFloat(sheet.getCellByA1(`D${i}`).value) === game) &&
       sheet.getCellByA1(`F${i}`).value === 1
