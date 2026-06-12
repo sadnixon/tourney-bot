@@ -29,7 +29,7 @@ async function loadSheet() {
   await doc.loadInfo();
   await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:H17"); //The borders of the Leaderboard on main sheet
   await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:AG50"); //The relevant portion of the Main Scoreboard, including the leaderboard
-  await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J65"); //The borders of the Personal Scores Block
+  await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J66"); //The borders of the Personal Scores Block
   await doc.sheetsByTitle["Fantasy"].loadCells("D60:H108"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
   await moddoc.sheetsByTitle["Guesses"].loadCells("A1:G2000");
@@ -539,7 +539,7 @@ async function getPlayers() {
   const sheet = doc.sheetsByTitle["Personal Scores + Stats"];
   const players = [];
   let teamName = "";
-  for (let i = 0; i < 10 * 6; i++) {
+  for (let i = 0; i < 10 * 6 + 1; i++) {
     teamName = sheet.getCell(i + 4, 1).value || teamName;
     players.push({
       name: sheet.getCell(i + 4, 2).value,
@@ -565,7 +565,7 @@ async function getGlobalPlayer2(player) {
   let pastInfo = [];
   let teamName = "";
   if (currentName) {
-    for (let k = 0; k < 10 * 6; k++) {
+    for (let k = 0; k < 10 * 6 + 1; k++) {
       // It has to be the number of players in each team times six
       teamName = currentsheet.getCell(k + 4, 1).value || teamName;
       if (currentsheet.getCell(k + 4, 2).value === currentName) {
