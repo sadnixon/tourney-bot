@@ -630,6 +630,8 @@ async function getPlayerGames(player) {
     Merlin: { Role: "Me", Team: "R" },
     Morgana: { Role: "Mo", Team: "S" },
     Assassin: { Role: "A", Team: "S" },
+    Moregano: { Role: "Mg", Team: "R" },
+    Melron: { Role: "Mn", Team: "R" },
   };
   let tourney = 13;
   let game = 0;
