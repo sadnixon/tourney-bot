@@ -27,7 +27,7 @@ async function execute(message, args, user) {
     );
   } else if (
     !(await guess_information.get("openSpecial")) ||
-    !["Anon.Special","Anonymous"].includes(currentGame.mode)
+    !["Anon.Special","Anonymous","Mystery"].includes(currentGame.mode)
   ) {
     message.channel.send(
       errorMessage(

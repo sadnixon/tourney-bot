@@ -20,7 +20,7 @@ async function getYear() {
 async function getMonth() {
   const value = await sheet_data.get("MONTH");
 
-  return value ? value : 0;
+  return value ? value : 6;
 }
 
 async function getTeamEmojis() {
@@ -54,13 +54,13 @@ async function getFormURL() {
 async function getStartDay() {
   const value = await sheet_data.get("START_DAY");
 
-  return value ? value : 22;
+  return value ? value : 16;
 }
 
 async function getGameNumber() {
   const value = await sheet_data.get("GAME_NUMBER");
 
-  return value ? value : 55;
+  return value ? value : 63;
 }
 
 async function getTournamentVCTextTwo() {

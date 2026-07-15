@@ -91,7 +91,7 @@ async function startupStuff() {
 async function scheduler() {
   await sheet.loadSheet();
   //setTimeout(loadSheet, 0);
-  setInterval(sheet.loadSheet, 60000);
+  setInterval(sheet.loadSheet, 600000);
   const game_schedule = await sheet.getSchedule();
   const current_date = new Date();
   for (let i = 0; i < game_schedule.length; i++) {

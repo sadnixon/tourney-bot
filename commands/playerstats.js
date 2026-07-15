@@ -78,6 +78,7 @@ async function execute(message, args, user) {
       "T12",
       "T13",
       "T14",
+      "T15",
     ];
     const wins = playerInfo[2][59] || 0;
     let tourneyIndices = [];
@@ -114,10 +115,10 @@ async function execute(message, args, user) {
                     )}/${playerInfo[2][67 + entry * 5]})`
                 )
                 .join("\n") +
-              `\nT15: ${playerInfo[1][0]} - ${
+              `\nT16: ${playerInfo[1][0]} - ${
                 playerInfo[1][5]
               } pts (${roundToThirds(playerInfo[1][3])}/${playerInfo[1][2]})`
-            : `**Rookie Tourney**\n\nT15: ${playerInfo[1][0]} - ${
+            : `**Rookie Tourney**\n\nT16: ${playerInfo[1][0]} - ${
                 playerInfo[1][5]
               } pts (${roundToThirds(playerInfo[1][3])}/${playerInfo[1][2]})`
           : `**Overall Points:** ${
