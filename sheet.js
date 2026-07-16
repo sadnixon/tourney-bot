@@ -239,7 +239,7 @@ async function getGuessLeaderboard() {
 
 async function getFantasyLeaderboard() {
   const sheet = doc.sheetsByTitle["Fantasy League 🔮"];
-  const leaderboard = _.range(80, 139, 1).map((row) => ({
+  const leaderboard = _.range(80, 145, 1).map((row) => ({
     mod: sheet.getCellByA1(`B${row}`).value,
     team: sheet.getCellByA1(`D${row}`).value,
     name: sheet.getCellByA1(`E${row}`).value,
