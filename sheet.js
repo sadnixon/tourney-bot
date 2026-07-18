@@ -577,7 +577,7 @@ async function getGames() {
 }
 
 async function getFuture(channel) {
-  const sheet = moddoc.sheetsByTitle("Compiled Schedules");
+  const sheet = moddoc.sheetsByTitle["Compiled Schedules"];
   const playerCols = ["B", "C", "D", "E", "F", "G", "H"];
   const subCols = ["I", "J", "K", "L", "M", "N", "O"];
   let teamChannels = [];
