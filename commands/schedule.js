@@ -143,7 +143,7 @@ async function execute(message, args, user) {
       } else {
         dayNumber = Math.min(dayNumber + 1, 11);
       }
-      const newEmbed = await scheduleEmbed(dayNumber, footer);
+      const newEmbed = await scheduleEmbed(dayNumber, footer, message.channel.id);
       emb.edit(newEmbed);
       const userReactions = emb.reactions.cache.filter((reaction) =>
         reaction.users.cache.has(author.id),
