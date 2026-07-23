@@ -52,7 +52,7 @@ async function loadSheet() {
 
 async function loadGlobalSheet() {
   await globaldoc.loadInfo();
-  await globaldoc.sheetsByTitle["Personal Stats"].loadCells("A1:EK424");
+  await globaldoc.sheetsByTitle["Personal Stats"].loadCells("A1:EK423");
 }
 
 setTimeout(loadGlobalSheet, 0);
