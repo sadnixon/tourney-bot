@@ -25,27 +25,18 @@ const auth = new JWT({
   ],
 });
 
-const doc = new GoogleSpreadsheet(
-  SHEET_PRIVATE_ID,
-  auth
-);
-const moddoc = new GoogleSpreadsheet(
-  MOD_SHEET_PRIVATE_ID,
-  auth
-);
-const globaldoc = new GoogleSpreadsheet(
-  GLOBAL_SHEET_PRIVATE_ID,
-  auth
-);
+const doc = new GoogleSpreadsheet(SHEET_PRIVATE_ID, auth);
+const moddoc = new GoogleSpreadsheet(MOD_SHEET_PRIVATE_ID, auth);
+const globaldoc = new GoogleSpreadsheet(GLOBAL_SHEET_PRIVATE_ID, auth);
 
 let updateTime = new Date(new Date().getTime());
 
 async function loadSheet() {
   updateTime = new Date(new Date().getTime());
   await doc.loadInfo();
-  await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:H17"); //The borders of the Leaderboard on main sheet
-  await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:AG50"); //The relevant portion of the Main Scoreboard, including the leaderboard
-  await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J66"); //The borders of the Personal Scores Block
+  await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:H21"); //The borders of the Leaderboard on main sheet
+  await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:AO43"); //The relevant portion of the Main Scoreboard, including the leaderboard
+  await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J61"); //The borders of the Personal Scores Block
   await doc.sheetsByTitle["Fantasy"].loadCells("D60:H108"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
   await moddoc.sheetsByTitle["Guesses"].loadCells("A1:G2000");
@@ -54,7 +45,7 @@ async function loadSheet() {
   await moddoc.sheetsByTitle["Awards"].loadCells("A1:E200");
   await moddoc.sheetsByTitle["Chat Counts"].loadCells("A1:E200");
   await globaldoc.loadInfo();
-  await globaldoc.sheetsByTitle["Personal Stats Overall"].loadCells("A2:EY230");
+  await globaldoc.sheetsByTitle["Personal Stats Overall"].loadCells("A2:FE236");
   //await globaldoc.sheetsByTitle["Names Correspondance"].loadCells("A1:S214");
 }
 
@@ -103,11 +94,11 @@ async function nameSheetLoader() {
 
 async function gamesDictLoader() {
   await globaldoc.loadInfo();
-  await globaldoc.sheetsByTitle["Roles/Teams 6p"].loadCells("A3:P528");
-  let resultsRoles = globaldoc.sheetsByTitle["Roles/Teams 6p"];
+  await globaldoc.sheetsByTitle["Roles/Teams 8p"].loadCells("A3:T107");
+  let resultsRoles = globaldoc.sheetsByTitle["Roles/Teams 8p"];
   let playerDict = {};
   let gameDict = {};
-  const seatListReg = ["E", "F", "G", "H", "I", "J"];
+  const seatListReg = ["E", "F", "G", "H", "I", "J", "K", "L"];
   const seatListDuo = [
     "E",
     "F",
@@ -121,21 +112,29 @@ async function gamesDictLoader() {
     "N",
     "O",
     "P",
+    "Q",
+    "R",
+    "S",
+    "T",
   ];
   let seatList = seatListReg;
   const roleDict = {
     E: { Regular: "VT", Team: "R" },
     F: { Regular: "VT", Team: "R" },
-    G: { Regular: "P", Team: "R" },
-    H: { Regular: "Me", Team: "R" },
-    I: { Regular: "A", Team: "S" },
-    J: { Regular: "Mo", Team: "S" },
-    K: { Regular: "VT-C", Team: "R" },
-    L: { Regular: "VT-C", Team: "R" },
-    M: { Regular: "P-C", Team: "R" },
-    N: { Regular: "Me-C", Team: "R" },
-    O: { Regular: "A-C", Team: "S" },
-    P: { Regular: "Mo-C", Team: "S" },
+    G: { Regular: "VT", Team: "R" },
+    H: { Regular: "P", Team: "R" },
+    I: { Regular: "Me", Team: "R" },
+    J: { Regular: "VS", Team: "S" },
+    K: { Regular: "A", Team: "S" },
+    L: { Regular: "Mo", Team: "S" },
+    M: { Regular: "VT-C", Team: "R" },
+    N: { Regular: "VT-C", Team: "R" },
+    O: { Regular: "VT-C", Team: "R" },
+    P: { Regular: "P-C", Team: "R" },
+    Q: { Regular: "Me-C", Team: "R" },
+    R: { Regular: "VS-C", Team: "S" },
+    S: { Regular: "A-C", Team: "S" },
+    T: { Regular: "Mo-C", Team: "S" },
   };
   let tourney = 0;
   let game = 0;
@@ -145,7 +144,7 @@ async function gamesDictLoader() {
   let player = "";
   let game_key = "";
 
-  for (let i = 3; i < 529; i++) {
+  for (let i = 3; i < 107; i++) {
     if (resultsRoles.getCellByA1(`A${i}`).value !== null) {
       tourney++;
     }
@@ -189,6 +188,9 @@ async function gamesDictLoader() {
   for (const player in playerDict) {
     await games_dictionary.set(player, playerDict[player]);
   }
+
+  //No matchup command
+  return;
 
   await globaldoc.sheetsByTitle["Opps Instances"].loadCells("A1:HV230");
   await globaldoc.sheetsByTitle["Opps Wins"].loadCells("A1:HV230");
@@ -259,12 +261,12 @@ function getUpdateTime() {
 
 async function getLeaderboard() {
   const sheet = doc.sheetsByTitle["Short Scoreboard + Player List"];
-  const leaderboard = _.range(0, 6).map((row) => ({
+  const leaderboard = _.range(0, 8).map((row) => ({
     name: sheet.getCellByA1(`B${3 + row * 2}`).value, //Column has to be leftmost column of leaderboard
     score: sheet.getCellByA1(`C${3 + row * 2}`).value, //Number has to be the position of the top score in the Reformat block
     gamesWon: sheet.getCellByA1(`D${3 + row * 2}`).value,
   }));
-  const pointsRemaining = sheet.getCellByA1("H16").value;
+  const pointsRemaining = sheet.getCellByA1("H20").value;
   return { leaderboard: leaderboard, pointsRemaining: pointsRemaining };
 }
 
@@ -333,7 +335,7 @@ async function getBestGuess(game) {
   for (let i = 2; i < 2000; i++) {
     if (sheet.getCellByA1(`A${i}`).value === null) break;
     if (
-      (parseFloat(sheet.getCellByA1(`D${i}`).value) === game) &&
+      parseFloat(sheet.getCellByA1(`D${i}`).value) === game &&
       sheet.getCellByA1(`F${i}`).value === 1
     ) {
       guesserList.push(sheet.getCellByA1(`B${i}`).value);
@@ -359,7 +361,7 @@ async function getBestGuess(game) {
 async function getSchedule() {
   const sheet = doc.sheetsByTitle["Main Scoreboard"];
   //await sheet.loadCells("A1:S23");
-  const dayGames = [3, 6, 6, 3, 3, 3, 3, 3, 6, 6];
+  const dayGames = [3, 5, 5, 3, 3, 3, 3, 4, 5, 5];
   let dayDoubles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   //const dayNames = _.range(0, dayGames.length).map(
   //  (num) =>
@@ -389,7 +391,7 @@ async function getSchedule() {
     "B+": "Bullet +",
     C: "Custom",
   };
-  
+
   //const gameNumber = await getGameNumber();
 
   const schedule = dayNames.map((name, idx) => {
@@ -404,7 +406,7 @@ async function getSchedule() {
       games: _.range(0, dayGames[idx]).map((row) => {
         cellTime =
           sheet.getCellByA1(
-            `E${
+            `F${
               dayGames.slice(0, idx).reduce((a, b) => a + b, 0) +
               dayDoubles.slice(0, idx).reduce((a, b) => a + b, 0) * 1 +
               row +
@@ -435,15 +437,10 @@ async function getSchedule() {
             4
           }`,
         ).value;
-        if (
-          [
-            "Bullet",
-            "Bullet +",
-          ].includes(gameType)
-        ) {
-          skips = skips + 1;
-          dayDoubles[idx] = dayDoubles[idx] + 1;
-        }
+        //if (["Bullet", "Bullet +"].includes(gameType)) {
+          //skips = skips + 1;
+          //dayDoubles[idx] = dayDoubles[idx] + 1;
+        //}
         if (row === dayGames[idx] - 1) {
           skips = 0;
         }
@@ -480,22 +477,19 @@ async function getGames() {
     C: "Custom",
   };
   //const gameNumber = await getGameNumber();
-  return _.range(0, 47) //Has to be one more than the number of rows in Inporter
+  return _.range(0, 39) //Has to be one more than the number of rows in Inporter
     .map((row) => {
       if (sheet.getCellByA1(`C${row + 4}`).value === null) return null;
       const played =
-        sheet.getCellByA1(`Y${row + 4}`).value &&
-        sheet.getCellByA1(`Y${row + 4}`).value.length > 0;
+        sheet.getCellByA1(`AF${row + 4}`).value &&
+        sheet.getCellByA1(`AF${row + 4}`).value.length > 0;
 
       const mode = modeNames[sheet.getCellByA1(`D${row + 4}`).value];
 
       const rawNumber = String(sheet.getCellByA1(`C${row + 4}`).value);
       const number = parseInt(rawNumber.replace(/[^\d]/g, ""));
       let subGame;
-      if (
-        mode === "Bullet" ||
-        mode === "Bullet +"
-      ) {
+      if (mode === "Bullet" || mode === "Bullet +") {
         subGame = rawNumber.replace(/\d/g, "");
       }
 
@@ -506,24 +500,25 @@ async function getGames() {
         };
       }
 
-      const winner = sheet.getCellByA1(`Y${row + 4}`).value;
+      const winner = sheet.getCellByA1(`AF${row + 4}`).value;
       const spyWin = winner === "Spies";
-      const spyIndexes = _.range(0, 6).filter((i) =>
-        ["Assassin", "Morgana"].includes(
-          sheet.getCell(row + 3, 7 + i * 3).value,
+      const spyIndexes = _.range(0, 8).filter((i) =>
+        ["Assassin", "Morgana", "Spy"].includes(
+          sheet.getCell(row + 3, 8 + i * 3).value,
         ),
       );
       let players = [];
       if (["Duo", "Duo +"].includes(mode)) {
-        players = _.range(0, 6).map(
-          (i) =>
-            `${emojis[i]} ${sheet.getCell(row + 3, 6 + i * 3).value} (${
-              sheet.getCell(row + 3, 27 + i).value
-            })`,
+        players = _.range(0, 8).map((i) =>
+          sheet.getCell(row + 3, 33 + i).isBlank()
+            ? `${emojis[i]} ${sheet.getCell(row + 3, 7 + i * 3).value}`
+            : `${emojis[i]} ${sheet.getCell(row + 3, 7 + i * 3).value} (${
+                sheet.getCell(row + 3, 33 + i).value
+              })`,
         );
       } else {
-        players = _.range(0, 6).map(
-          (i) => `${emojis[i]} ${sheet.getCell(row + 3, 6 + i * 3).value}`,
+        players = _.range(0, 8).map(
+          (i) => `${emojis[i]} ${sheet.getCell(row + 3, 7 + i * 3).value}`,
         );
       }
 
@@ -555,7 +550,7 @@ async function getPlayers() {
   const sheet = doc.sheetsByTitle["Personal Scores + Stats"];
   const players = [];
   let teamName = "";
-  for (let i = 0; i < 10 * 6 + 1; i++) {
+  for (let i = 0; i < 7 * 8; i++) {
     teamName = sheet.getCell(i + 4, 1).value || teamName;
     players.push({
       name: sheet.getCell(i + 4, 2).value,
@@ -581,7 +576,7 @@ async function getGlobalPlayer2(player) {
   let pastInfo = [];
   let teamName = "";
   if (currentName) {
-    for (let k = 0; k < 10 * 6 + 1; k++) {
+    for (let k = 0; k < 7 * 8; k++) {
       // It has to be the number of players in each team times six
       teamName = currentsheet.getCell(k + 4, 1).value || teamName;
       if (currentsheet.getCell(k + 4, 2).value === currentName) {
@@ -597,7 +592,7 @@ async function getGlobalPlayer2(player) {
   }
   if (!player.new) {
     pastInfo.push(
-      ..._.range(0, 155 + GlobalSheetUpdated * 6).map(
+      ..._.range(0, 161 + GlobalSheetUpdated * 6).map(
         (entry) => sheet.getCell(globalIndex + 1, entry).value,
       ), // Has to be the number of columns in the Global Sheet
     );
@@ -608,26 +603,32 @@ async function getGlobalPlayer2(player) {
 async function getPlayerGames(player) {
   const sheet = doc.sheetsByTitle["Main Scoreboard"];
   const seatDictReg = {
-    G: "H",
-    J: "K",
-    M: "N",
-    P: "Q",
-    S: "T",
-    V: "W",
+    H: "I",
+    K: "L",
+    N: "O",
+    Q: "R",
+    T: "U",
+    W: "X",
+    Z: "AA",
+    AC: "AD",
   };
   const seatDictDuo = {
-    G: "H",
-    J: "K",
-    M: "N",
-    P: "Q",
-    S: "T",
-    V: "W",
-    AB: "H",
-    AC: "K",
-    AD: "N",
-    AE: "Q",
-    AF: "T",
-    AG: "W",
+    H: "I",
+    K: "L",
+    N: "O",
+    Q: "R",
+    T: "U",
+    W: "X",
+    Z: "AA",
+    AC: "AD",
+    AH: "I",
+    AI: "L",
+    AJ: "O",
+    AK: "R",
+    AL: "U",
+    AM: "X",
+    AN: "AA",
+    AO: "AD",
   };
   let seatDict = seatDictReg;
   let gameDict;
@@ -644,20 +645,23 @@ async function getPlayerGames(player) {
     Resistance: { Role: "VT", Team: "R" },
     Percival: { Role: "P", Team: "R" },
     Merlin: { Role: "Me", Team: "R" },
+    Tristan: { Role: "Tr", Team: "R" },
+    Isolde: { Role: "Is", Team: "R" },
+    Spy: { Role: "VS", Team: "S" },
     Morgana: { Role: "Mo", Team: "S" },
     Assassin: { Role: "A", Team: "S" },
     Moregano: { Role: "Mg", Team: "R" },
     Melron: { Role: "Mn", Team: "R" },
   };
-  let tourney = 13;
+  let tourney = 4;
   let game = 0;
   let mode = "";
   let role = "";
   let team = "";
   let game_key = "";
 
-  for (let i = 4; i < 51; i++) {
-    if (!["Spies", "Resistance"].includes(sheet.getCellByA1(`Y${i}`).value)) {
+  for (let i = 4; i < 43; i++) {
+    if (!["Spies", "Resistance"].includes(sheet.getCellByA1(`AF${i}`).value)) {
       break;
     }
     game = sheet.getCellByA1(`C${i}`).value;
@@ -665,7 +669,7 @@ async function getPlayerGames(player) {
     game_key = `${tourney}_${game}`;
 
     mode = sheet.getCellByA1(`D${i}`).value;
-    winner = sheet.getCellByA1(`Y${i}`).value[0];
+    winner = sheet.getCellByA1(`AF${i}`).value[0];
     gameDict[game_key] = {
       mode: mode,
       winner: winner,

@@ -2,15 +2,15 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { errorMessage, rank } = require("../message-helpers");
 
 async function execute(interaction, user) {
+  return await interaction.reply(
+    `Sorry, no matchups command right now, it's a real pain.`,
+  );
   try {
     const playerInput = interaction.options.getString("player");
     const teamOpp = interaction.options.getString("type");
     const bestWorst =
-      interaction.options.getString("sort") === "worst"
-        ? "Worst"
-        : "Best";
-    const minGames =
-      interaction.options.getInteger("mingames") ?? 2;
+      interaction.options.getString("sort") === "worst" ? "Worst" : "Best";
+    const minGames = interaction.options.getInteger("mingames") ?? 2;
 
     let player1;
 
@@ -22,9 +22,11 @@ async function execute(interaction, user) {
 
     if (player1 == null) {
       return interaction.reply({
-        embeds: [errorMessage(
-          "Must include a valid player name or be a tournament player yourself."
-        )],
+        embeds: [
+          errorMessage(
+            "Must include a valid player name or be a tournament player yourself.",
+          ),
+        ],
         ephemeral: true,
       });
     }
@@ -48,35 +50,27 @@ async function execute(interaction, user) {
     let filteredList;
 
     if (teamOpp === "team") {
-      filteredList = matchupList.filter(
-        (item) => item.teamGames >= minGames
-      );
+      filteredList = matchupList.filter((item) => item.teamGames >= minGames);
 
       if (bestWorst === "Best") {
         filteredList.sort(
-          (a, b) =>
-            b.teamWR - a.teamWR || b.teamGames - a.teamGames
+          (a, b) => b.teamWR - a.teamWR || b.teamGames - a.teamGames,
         );
       } else {
         filteredList.sort(
-          (a, b) =>
-            a.teamWR - b.teamWR || b.teamGames - a.teamGames
+          (a, b) => a.teamWR - b.teamWR || b.teamGames - a.teamGames,
         );
       }
     } else {
-      filteredList = matchupList.filter(
-        (item) => item.oppGames >= minGames
-      );
+      filteredList = matchupList.filter((item) => item.oppGames >= minGames);
 
       if (bestWorst === "Best") {
         filteredList.sort(
-          (a, b) =>
-            b.oppWR - a.oppWR || b.oppGames - a.oppGames
+          (a, b) => b.oppWR - a.oppWR || b.oppGames - a.oppGames,
         );
       } else {
         filteredList.sort(
-          (a, b) =>
-            a.oppWR - b.oppWR || b.oppGames - a.oppGames
+          (a, b) => a.oppWR - b.oppWR || b.oppGames - a.oppGames,
         );
       }
     }
@@ -87,34 +81,26 @@ async function execute(interaction, user) {
       filteredList,
       teamOpp === "team" ? "teamWR" : "oppWR",
       teamOpp === "team" ? "teamGames" : "oppGames",
-      10
+      10,
     );
 
     const embed = new EmbedBuilder()
       .setTitle(
         `${bestWorst} ${
           teamOpp === "team" ? "Team" : "Opp"
-        } Matchups: ${player1.global}`
+        } Matchups: ${player1.global}`,
       )
       .setDescription(
         `**Minimum Games: ${minGames}**\n\n${filteredList
           .map(
             (entry, i) =>
               `${ranks[i]}. ${entry.otherName}: **${
-                teamOpp === "team"
-                  ? entry.teamWR
-                  : entry.oppWR
-              }%** (${
-                teamOpp === "team"
-                  ? entry.teamWins
-                  : entry.oppWins
-              }/${
-                teamOpp === "team"
-                  ? entry.teamGames
-                  : entry.oppGames
-              })`
+                teamOpp === "team" ? entry.teamWR : entry.oppWR
+              }%** (${teamOpp === "team" ? entry.teamWins : entry.oppWins}/${
+                teamOpp === "team" ? entry.teamGames : entry.oppGames
+              })`,
           )
-          .join("\n")}`
+          .join("\n")}`,
       )
       .setFooter({
         text: `Updated ${user.updateTime}`,
@@ -127,9 +113,11 @@ async function execute(interaction, user) {
     console.error(err);
 
     await interaction.reply({
-      embeds: [errorMessage(
-        "😔 There was an error making your request. You may have entered incorrect player names."
-      )],
+      embeds: [
+        errorMessage(
+          "😔 There was an error making your request. You may have entered incorrect player names.",
+        ),
+      ],
       ephemeral: true,
     });
   }
@@ -146,16 +134,14 @@ module.exports = {
         .setRequired(true)
         .addChoices(
           { name: "Team", value: "team" },
-          { name: "Opp", value: "opp" }
-        )
+          { name: "Opp", value: "opp" },
+        ),
     )
     .addStringOption((option) =>
       option
         .setName("player")
-        .setDescription(
-          "Player to view. Leave blank to use yourself."
-        )
-        .setRequired(false)
+        .setDescription("Player to view. Leave blank to use yourself.")
+        .setRequired(false),
     )
     .addStringOption((option) =>
       option
@@ -164,15 +150,15 @@ module.exports = {
         .setRequired(false)
         .addChoices(
           { name: "Best", value: "best" },
-          { name: "Worst", value: "worst" }
-        )
+          { name: "Worst", value: "worst" },
+        ),
     )
     .addIntegerOption((option) =>
       option
         .setName("mingames")
         .setDescription("Minimum number of games played.")
         .setMinValue(1)
-        .setRequired(false)
+        .setRequired(false),
     ),
 
   execute,

@@ -90,10 +90,11 @@ async function execute(interaction, user) {
       "T10",
       "T11",
       "T12",
+      "T13",
       "8p T1",
       "8p T2",
       "8p T3",
-      "T13",
+      "8p T4",
     ];
 
     const wins = playerInfo[2][54] || 0;
@@ -137,20 +138,20 @@ async function execute(interaction, user) {
                 .map(
                   (entry) =>
                     `${tourneyNames[entry]}: ${
-                      playerInfo[2][64 + entry * 6 + (entry > 11) * 1]
+                      playerInfo[2][64 + entry * 6 + (entry > 12) * 1]
                     } - ${
-                      playerInfo[2][68 + entry * 6 + (entry > 11) * 1]
+                      playerInfo[2][68 + entry * 6 + (entry > 12) * 1]
                     } pts *${
-                      playerInfo[2][69 + entry * 6 + (entry > 11) * 1]
+                      playerInfo[2][69 + entry * 6 + (entry > 12) * 1]
                     } adj.* (${
-                      playerInfo[2][67 + entry * 6 + (entry > 11) * 1]
+                      playerInfo[2][67 + entry * 6 + (entry > 12) * 1]
                     }/${
-                      playerInfo[2][66 + entry * 6 + (entry > 11) * 1]
+                      playerInfo[2][66 + entry * 6 + (entry > 12) * 1]
                     })`
                 )
                 .join("\n") +
-              `\nT13: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
-            : `**Rookie Tourney**\n\nT13: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
+              `\n8p T4: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
+            : `**Rookie Tourney**\n\n8p T4: ${playerInfo[1][0]} - ${playerInfo[1][7]} pts (${playerInfo[1][2]}/${playerInfo[1][1]})`
           : `**Overall Points:** ${playerInfo[2][3]}\n**Overall Adjusted Points:** ${
               playerInfo[2][4]
             }\n**Overall Record:** ${playerInfo[2][2]}/${
@@ -165,15 +166,15 @@ async function execute(interaction, user) {
               .map(
                 (entry) =>
                   `${tourneyNames[entry]}: ${
-                    playerInfo[2][64 + entry * 6 + (entry > 11) * 1]
+                    playerInfo[2][64 + entry * 6 + (entry > 12) * 1]
                   } - ${
-                    playerInfo[2][68 + entry * 6 + (entry > 11) * 1]
+                    playerInfo[2][68 + entry * 6 + (entry > 12) * 1]
                   } pts *${
-                    playerInfo[2][69 + entry * 6 + (entry > 11) * 1]
+                    playerInfo[2][69 + entry * 6 + (entry > 12) * 1]
                   } adj.* (${
-                    playerInfo[2][67 + entry * 6 + (entry > 11) * 1]
+                    playerInfo[2][67 + entry * 6 + (entry > 12) * 1]
                   }/${
-                    playerInfo[2][66 + entry * 6 + (entry > 11) * 1]
+                    playerInfo[2][66 + entry * 6 + (entry > 12) * 1]
                   })`
               )
               .join("\n")

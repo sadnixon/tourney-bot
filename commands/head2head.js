@@ -115,7 +115,7 @@ async function execute(interaction, user) {
             ? oppGames
                 .map(
                   (g) =>
-                    `T${g.tourney} - ${g.game}: **${
+                    `8p T${g.tourney} - ${g.game}: **${
                       g.p1_won ? "W" : "L"
                     }** - ${g.p1_role} vs. ${g.p2_role} (${g.mode})`
                 )
@@ -126,7 +126,7 @@ async function execute(interaction, user) {
             ? teamGames
                 .map(
                   (g) =>
-                    `T${g.tourney} - ${g.game}: **${
+                    `8p T${g.tourney} - ${g.game}: **${
                       g.p1_won ? "W" : "L"
                     }** - ${g.p1_role} & ${g.p2_role} (${g.mode})`
                 )
