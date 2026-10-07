@@ -1,10 +1,10 @@
-const Discord = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 const sheet = require("./sheet");
 const _ = require("lodash");
 const { getGameNumber, getGuildID } = require("./constants");
 
 const errorMessage = (message) => {
-  return new Discord.MessageEmbed().setDescription(message).setColor("#ff0000");
+  return new EmbedBuilder().setDescription(message).setColor("#ff0000");
 };
 
 const rank = (competitorList, column, secondary = false, limit = 10) => {

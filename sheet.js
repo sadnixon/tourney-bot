@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const { GoogleSpreadsheet } = require("google-spreadsheet");
+const { JWT } = require("google-auth-library");
 const {
   SHEET_PRIVATE_ID,
   MOD_SHEET_PRIVATE_ID,
@@ -15,12 +16,27 @@ const {
   getGlobalSheetUpdated,
 } = require("./constants");
 
-const doc = new GoogleSpreadsheet(SHEET_PRIVATE_ID);
-const moddoc = new GoogleSpreadsheet(MOD_SHEET_PRIVATE_ID);
-const globaldoc = new GoogleSpreadsheet(GLOBAL_SHEET_PRIVATE_ID);
-doc.useServiceAccountAuth(GOOGLE_API_CREDENTIALS);
-moddoc.useServiceAccountAuth(GOOGLE_API_CREDENTIALS);
-globaldoc.useServiceAccountAuth(GOOGLE_API_CREDENTIALS);
+const auth = new JWT({
+  email: GOOGLE_API_CREDENTIALS.client_email,
+  key: GOOGLE_API_CREDENTIALS.private_key,
+  scopes: [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive.file",
+  ],
+});
+
+const doc = new GoogleSpreadsheet(
+  SHEET_PRIVATE_ID,
+  auth
+);
+const moddoc = new GoogleSpreadsheet(
+  MOD_SHEET_PRIVATE_ID,
+  auth
+);
+const globaldoc = new GoogleSpreadsheet(
+  GLOBAL_SHEET_PRIVATE_ID,
+  auth
+);
 
 let updateTime = new Date(new Date().getTime());
 
@@ -44,10 +60,10 @@ async function loadSheet() {
 
 async function nameSheetLoader() {
   await globaldoc.loadInfo();
-  await globaldoc.sheetsByTitle["Names Correspondance"].loadCells("A1:Z235");
+  await globaldoc.sheetsByTitle["Names Correspondance"].loadCells("A1:AA242");
   const names = globaldoc.sheetsByTitle["Names Correspondance"];
   const namerows = await names.getRows();
-  const namecolumns = ["S", "T", "U", "V", "W", "X"];
+  const namecolumns = ["T", "U", "V", "W", "X", "Y"];
 
   await ids_dictionary.clear();
   await names_dictionary.clear();
@@ -61,25 +77,25 @@ async function nameSheetLoader() {
         names.getCellByA1(`${j}${i}`).value.toString().toLowerCase(),
         {
           global: names.getCellByA1(`A${i}`).value.toString(),
-          current: names.getCellByA1(`Q${i}`).value
-            ? names.getCellByA1(`Q${i}`).value.toString()
+          current: names.getCellByA1(`R${i}`).value
+            ? names.getCellByA1(`R${i}`).value.toString()
             : null,
           index: i - 1,
-          discord: names.getCellByA1(`W${i}`).value
-            ? names.getCellByA1(`W${i}`).value.toString()
+          discord: names.getCellByA1(`Z${i}`).value
+            ? names.getCellByA1(`Z${i}`).value.toString()
             : null,
-          new: names.getCellByA1(`Z${i}`).value === "NEW",
+          new: names.getCellByA1(`AA${i}`).value === "NEW",
         },
       );
     }
-    if (names.getCellByA1(`Y${i}`).value !== null) {
-      await ids_dictionary.set(names.getCellByA1(`Y${i}`).value.toString(), {
+    if (names.getCellByA1(`Z${i}`).value !== null) {
+      await ids_dictionary.set(names.getCellByA1(`Z${i}`).value.toString(), {
         global: names.getCellByA1(`A${i}`).value.toString(),
-        current: names.getCellByA1(`Q${i}`).value
-          ? names.getCellByA1(`Q${i}`).value.toString()
+        current: names.getCellByA1(`R${i}`).value
+          ? names.getCellByA1(`R${i}`).value.toString()
           : null,
         index: i - 1,
-        new: names.getCellByA1(`Z${i}`).value === "NEW",
+        new: names.getCellByA1(`AA${i}`).value === "NEW",
       });
     }
   }

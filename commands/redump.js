@@ -1,15 +1,19 @@
+const { SlashCommandBuilder } = require("discord.js");
 const sheet = require("../sheet");
-const { errorMessage } = require("../message-helpers");
 
-async function execute(message, args, user) {
-  if (user.isAuthorized) {
-    sheet.dumpGuesses(guess_information);
-    message.channel.send("Guesses Re-Dumped.");
+async function execute(interaction, user) {
+  if (!user.isAuthorized) {
+    return;
   }
+
+  await sheet.dumpGuesses(guess_information);
+
+  await interaction.reply("Guesses Re-Dumped.");
 }
 
 module.exports = {
-  name: "redump",
-  aliases: ["dump", "rd"],
+  data: new SlashCommandBuilder()
+    .setName("redump")
+    .setDescription("Re-dump all Merlin guesses."),
   execute,
 };

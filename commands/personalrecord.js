@@ -1,53 +1,77 @@
-const Discord = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const sheet = require("../sheet");
-const { errorMessage, rank } = require("../message-helpers");
+const { errorMessage } = require("../message-helpers");
 
-async function execute(message, args, user) {
+async function execute(interaction, user) {
   try {
-    let id = message.author.id;
-    if (
-      args.length > 0 &&
-      args[0].substr(0, 2) === "<@" &&
-      args[0].charAt(args[0].length - 1) === ">"
-    ) {
-      // Assume it's a mention
-      id = args[0].substr(2, args[0].length - 3);
-    } else if (args.length > 0) {
-      const player = await names_dictionary.get(args.join("").toLowerCase());
-      id = player.discord;
-      if (id == null) {
-        return message.channel.send(
-          errorMessage(
-            "Must include either a tag for someone who has guessed, or a valid tourney name for someone who has guessed."
-          )
-        );
+    const playerInput = interaction.options.getString("player");
+
+    let id = interaction.user.id;
+
+    if (playerInput) {
+      const player = await names_dictionary.get(
+        playerInput.toLowerCase()
+      );
+
+      if (player == null || player.discord == null) {
+        return interaction.reply({
+          embeds: [errorMessage(
+            "Must include a valid tourney name for someone who has guessed."
+          )],
+          ephemeral: true,
+        });
       }
+
+      id = player.discord;
     }
+
     const guessRecord = await sheet.getPersonalStats(id);
-    const embed = new Discord.MessageEmbed()
+
+    const embed = new EmbedBuilder()
       .setTitle("Personal Guess Record")
       .setDescription(
-        guessRecord.map(
-          (entry, i) => `**${entry.game}.** ${entry.merlin} (${entry.correct})`
-        )
+        guessRecord
+          .map(
+            (entry) =>
+              `**${entry.game}.** ${entry.merlin} (${entry.correct})`
+          )
+          .join("\n")
       )
-      .addField("Guesser:", `<@${id}>`)
-      .setFooter(`Updated ${user.updateTime}`);
-    message.channel.send(embed);
+      .addFields({
+        name: "Guesser:",
+        value: `<@${id}>`,
+      })
+      .setFooter({
+        text: `Updated ${user.updateTime}`,
+      });
+
+    await interaction.reply({
+      embeds: [embed],
+    });
   } catch (err) {
-    // Sentry.captureException(err);
     console.error(err);
-    message.channel.send(
-      errorMessage(
+
+    await interaction.reply({
+      embeds: [errorMessage(
         "😔 There was an error making your request. Please try again in a bit."
-      )
-    );
+      )],
+      ephemeral: true,
+    });
   }
 }
 
 module.exports = {
-  name: "personalrecord",
-  aliases: ["pr"],
-  description: "Personal Guess Record",
+  data: new SlashCommandBuilder()
+    .setName("personalrecord")
+    .setDescription("View a player's personal Merlin guess record.")
+    .addStringOption((option) =>
+      option
+        .setName("player")
+        .setDescription(
+          "Tourney name of the player. Leave blank to view your own record."
+        )
+        .setRequired(false)
+    ),
+
   execute,
 };

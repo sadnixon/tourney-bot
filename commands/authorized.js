@@ -1,21 +1,35 @@
-const Discord = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 
-async function execute(message, args, user) {
-  if (user.isAuthorized) {
-    const embed = new Discord.MessageEmbed()
-      .setTitle("Authorized Tourney Bot Users:")
-      .setDescription(
-        `<@${[...new Set(await authorized_data_setters.get("auth"))].join(
-          ">, <@"
-        )}>`
-      )
-      .setFooter(`Updated ${user.updateTime}`);
-    message.channel.send(embed);
+async function execute(interaction, user) {
+  if (!user.isAuthorized) {
+    return;
   }
+
+  const authorizedUsers =
+    (await authorized_data_setters.get("auth")) ?? [];
+
+  const uniqueUsers = [...new Set(authorizedUsers)];
+
+  const embed = new EmbedBuilder()
+    .setTitle("Authorized Tourney Bot Users:")
+    .setDescription(
+      uniqueUsers.length > 0
+        ? uniqueUsers.map((id) => `<@${id}>`).join(", ")
+        : "No authorized users."
+    )
+    .setFooter({
+      text: `Updated ${user.updateTime}`,
+    });
+
+  await interaction.reply({
+    embeds: [embed],
+  });
 }
 
 module.exports = {
-  name: "authorized",
-  aliases: [],
+  data: new SlashCommandBuilder()
+    .setName("authorized")
+    .setDescription("Display all authorized Tourney Bot users."),
+
   execute,
 };

@@ -9,4 +9,6 @@ module.exports = {
   SENTRY_DSN: "",
   ENABLE_SENTRY: false,
   OWNER: "",
+  GUILD_ID: "",
+  CLIENT_ID: "",
 };

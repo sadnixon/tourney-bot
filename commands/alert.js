@@ -1,24 +1,35 @@
-const Discord = require("discord.js");
-const sheet = require("../sheet");
-const _ = require("lodash");
-const { getGameNumber } = require("../constants");
+const { SlashCommandBuilder } = require("discord.js");
 const { alertMessage } = require("../message-helpers");
 
-async function execute(message, args, user) {
-  if (user.isAuthorized) {
-    if (coolDown) {
-      return message.reply("you can only do that command every 5 minutes.");
-    }
-    await alertMessage(message.client);
-    coolDown = true;
-    setTimeout(() => {
-      coolDown = false;
-    }, 300000);
+async function execute(interaction, user) {
+  if (!user.isAuthorized) {
+    return;
   }
+
+  await interaction.deferReply({ ephemeral: true });
+
+  if (coolDown) {
+    return interaction.editReply({
+      content: "You can only do that command every 5 minutes.",
+      ephemeral: true,
+    });
+  }
+
+  await alertMessage(interaction.client);
+
+  coolDown = true;
+
+  setTimeout(() => {
+    coolDown = false;
+  }, 300000);
+
+  await interaction.editReply("Alert sent.");
 }
 
 module.exports = {
-  name: "alert",
-  aliases: [],
+  data: new SlashCommandBuilder()
+    .setName("alert")
+    .setDescription("Send an alert to the appropriate channels."),
+
   execute,
 };

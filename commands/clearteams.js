@@ -1,20 +1,25 @@
-const { errorMessage, rank } = require("../message-helpers");
+const {
+  SlashCommandBuilder,
+} = require("discord.js");
 
-async function execute(message, args, user) {
-  if (user.isAuthorized) {
-    await team_roles_channels.set(
-      "teams",
-      await team_roles_channels.clear("teams")
-    );
-    message.channel.send(
-      "All team roles and channels have now been cleared from the list."
-    );
+async function execute(interaction, user) {
+  if (!user.isAuthorized) {
+    return;
   }
+
+  await team_roles_channels.clear("teams");
+
+  await interaction.reply(
+    "All team roles and channels have now been cleared from the list."
+  );
+
   console.log(team_roles_channels);
 }
 
 module.exports = {
-  name: "clearteams",
-  aliases: [],
+  data: new SlashCommandBuilder()
+    .setName("clearteams")
+    .setDescription("Clear all team roles and their associated channels."),
+
   execute,
 };

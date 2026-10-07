@@ -1,11 +1,15 @@
+const { SlashCommandBuilder } = require("discord.js");
 const { getSheetURL } = require("../constants");
 
-async function execute(message, args, user) {
-  message.channel.send(`Official Tourney Sheet: <${await getSheetURL()}>`);
+async function execute(interaction, user) {
+  await interaction.reply(
+    `Official Tourney Sheet: <${await getSheetURL()}>`
+  );
 }
 
 module.exports = {
-  name: "sheet",
-  aliases: [],
+  data: new SlashCommandBuilder()
+    .setName("sheet")
+    .setDescription("Get the official tournament sheet."),
   execute,
 };

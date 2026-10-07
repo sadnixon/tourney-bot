@@ -1,8 +1,9 @@
+const { SlashCommandBuilder } = require("discord.js");
 const { getGameNumber } = require("../constants");
 const { errorMessage } = require("../message-helpers");
 
-async function execute(message, args, user) {
-  const award_list = [
+async function execute(interaction, user) {
+  const awardList = [
     "assassin",
     "morgana",
     "merlin",
@@ -11,36 +12,74 @@ async function execute(message, args, user) {
     "shot",
     "robbed",
   ];
-  const gameNumber = await getGameNumber();
-  const timestamp = new Date(new Date().getTime());
-  if (
-    args.length > 2 &&
-    award_list.includes(args[0].toLowerCase()) &&
-    parseInt(args[2]) > 0 &&
-    parseInt(args[2]) <= gameNumber
-  ) {
+
+  const award = interaction.options.getString("award").toLowerCase();
+  const player = interaction.options.getString("player");
+  const gameNumber = interaction.options.getInteger("game");
+
+  const currentGameNumber = await getGameNumber();
+  const timestamp = new Date();
+
+  if (gameNumber > 0 && gameNumber <= currentGameNumber) {
+    const existingNominations =
+      (await award_information.get(award)) ?? [];
+
     await award_information.set(
-      args[0].toLowerCase(),
-      (
-        await award_information.get(args[0].toLowerCase())
-      ).concat([
-        [timestamp, message.author.username, args[1], parseInt(args[2])],
+      award,
+      existingNominations.concat([
+        [
+          timestamp,
+          interaction.user.username,
+          player,
+          gameNumber,
+        ],
       ])
     );
-    message.channel.send(
-      `Award Nomination received! Thank you, <@${message.author.id}>.`
-    );
-  } else {
-    message.channel.send(
-      errorMessage(
-        "Must include an award category, a player name, and a game number in that order. For example: `s!submit vt SadNixon 32`\n\n The award categories are `vt`, `percival`, `merlin`, `morgana`, `assassin`, `shot`, and `robbed`."
-      )
+
+    return interaction.reply(
+      `Award Nomination received! Thank you, <@${interaction.user.id}>.`
     );
   }
+
+  return interaction.reply({
+    embeds: [errorMessage(
+      "Must include a valid game number. The game number must be greater than 0 and no greater than the current game number."
+    )],
+    ephemeral: true,
+  });
 }
 
 module.exports = {
-  name: "submit",
-  aliases: ["award", "nom", "nominate"],
+  data: new SlashCommandBuilder()
+    .setName("submit")
+    .setDescription("Submit an award nomination.")
+    .addStringOption((option) =>
+      option
+        .setName("award")
+        .setDescription("Award category.")
+        .setRequired(true)
+        .addChoices(
+          { name: "Assassin", value: "assassin" },
+          { name: "Morgana", value: "morgana" },
+          { name: "Merlin", value: "merlin" },
+          { name: "Percival", value: "percival" },
+          { name: "VT", value: "vt" },
+          { name: "Shot", value: "shot" },
+          { name: "Robbed", value: "robbed" }
+        )
+    )
+    .addStringOption((option) =>
+      option
+        .setName("player")
+        .setDescription("Player being nominated.")
+        .setRequired(true)
+    )
+    .addIntegerOption((option) =>
+      option
+        .setName("game")
+        .setDescription("Game number.")
+        .setRequired(true)
+    ),
+
   execute,
 };

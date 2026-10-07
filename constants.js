@@ -1,15 +1,16 @@
 const { ENABLE_DB } = require("./env");
-const Keyv = require("keyv");
+const Keyv = require("keyv").default;
+const KeyvMongo = require("@keyv/mongo").default;
+const mongoStore = new KeyvMongo("mongodb://localhost:27017/tourney-bot");
 
 let sheet_data;
 
-if (ENABLE_DB) {
-  sheet_data = new Keyv("mongodb://localhost:27017/tourney-bot", {
-    namespace: "sheet_data",
-  });
-} else {
-  sheet_data = new Keyv();
-}
+sheet_data = ENABLE_DB
+  ? new Keyv({
+      store: mongoStore,
+      namespace: "sheet_data",
+    })
+  : new Keyv();
 
 async function getYear() {
   const value = await sheet_data.get("YEAR");
@@ -31,6 +32,8 @@ async function getTeamEmojis() {
     await sheet_data.get("teamEmoji4"),
     await sheet_data.get("teamEmoji5"),
     await sheet_data.get("teamEmoji6"),
+    await sheet_data.get("teamEmoji7"),
+    await sheet_data.get("teamEmoji8"),
   ];
 
   return values ? values : ["🦉", "🚫", "✌️", "🌮", "🦩", "😈"];

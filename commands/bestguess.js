@@ -1,63 +1,87 @@
-const Discord = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const sheet = require("../sheet");
-const { errorMessage, rank } = require("../message-helpers");
+const { errorMessage } = require("../message-helpers");
 
-async function execute(message, args, user) {
-  if (args.length !== 1) {
-    message.channel.send(
-      errorMessage("Must include a valid game number, such as 27 or 1B."),
-    );
-  } else {
-    try {
-      let game;
+async function execute(interaction) {
+  const gameNumber = interaction.options.getString("game");
 
-      if (["A", "B", "a", "b"].includes(args[0].slice(-1))) {
-        const subIndicatorList = ["a", "b"];
-        game =
-          parseInt(args[0].slice(0, -1)) +
-          (1 + subIndicatorList.indexOf(args[0].slice(-1).toLowerCase())) / 10;
-      } else {
-        game = parseInt(args[0]);
-      }
+  try {
+    let game;
 
-      const guessInfo = await sheet.getBestGuess(game);
-      if (guessInfo.merlin === null) {
-        message.channel.send(
-          errorMessage("This game is not complete or has no guesses."),
-        );
-      } else {
-        const embed = new Discord.MessageEmbed()
-          .setTitle(`Correct Merlin Guessers For Game ${args[0].toUpperCase()}`)
-          .setDescription(
-            `Merlin: **${
-              guessInfo.merlin
-            }**\n\nCorrect Guessers: <@${guessInfo.guesserList.join(
-              ">, <@",
-            )}>\n\nGuesser Accuracy: ${(guessInfo.average * 100).toFixed(
-              1,
-            )}% (${guessInfo.guesserList.length}/${
-              guessInfo.guessnum
-            })\nMost Common False Guess: **${guessInfo.mostfalse}** ${(
-              (guessInfo.falsenum / guessInfo.guessnum) *
-              100
-            ).toFixed(1)}% (${guessInfo.falsenum}/${guessInfo.guessnum})`,
-          );
-        message.channel.send(embed);
-      }
-    } catch (err) {
-      console.error(err);
-      message.channel.send(
-        errorMessage(
-          "😔 There was an error making your request. You may have entered an incorrect game number.",
-        ),
-      );
+    if (["A", "B", "a", "b"].includes(gameNumber.slice(-1))) {
+      const subIndicatorList = ["a", "b"];
+
+      game =
+        parseInt(gameNumber.slice(0, -1)) +
+        (1 + subIndicatorList.indexOf(gameNumber.slice(-1).toLowerCase())) / 10;
+    } else {
+      game = parseInt(gameNumber);
     }
+
+    if (isNaN(game)) {
+      return interaction.reply({
+        embeds: [errorMessage(
+          "Must include a valid game number, such as 27 or 1B."
+        )],
+        ephemeral: true,
+      });
+    }
+
+    const guessInfo = await sheet.getBestGuess(game);
+
+    if (guessInfo.merlin === null) {
+      return interaction.reply({
+        embeds: [errorMessage(
+          "This game is not complete or has no guesses."
+        )],
+        ephemeral: true,
+      });
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle(
+        `Correct Merlin Guessers For Game ${gameNumber.toUpperCase()}`
+      )
+      .setDescription(
+        `Merlin: **${guessInfo.merlin}**\n\n` +
+          `Correct Guessers: <@${guessInfo.guesserList.join(
+            ">, <@"
+          )}>\n\n` +
+          `Guesser Accuracy: ${(guessInfo.average * 100).toFixed(1)}% ` +
+          `(${guessInfo.guesserList.length}/${guessInfo.guessnum})\n` +
+          `Most Common False Guess: **${guessInfo.mostfalse}** ` +
+          `${(
+            (guessInfo.falsenum / guessInfo.guessnum) *
+            100
+          ).toFixed(1)}% ` +
+          `(${guessInfo.falsenum}/${guessInfo.guessnum})`
+      );
+
+    await interaction.reply({
+      embeds: [embed],
+    });
+  } catch (err) {
+    console.error(err);
+
+    await interaction.reply({
+      embeds: [errorMessage(
+        "😔 There was an error making your request. You may have entered an incorrect game number."
+      )],
+      ephemeral: true,
+    });
   }
 }
 
 module.exports = {
-  name: "bestguess",
-  aliases: ["bg"],
-  description: "Guess Leaderboard",
+  data: new SlashCommandBuilder()
+    .setName("bestguess")
+    .setDescription("View the best Merlin guess for a specific game.")
+    .addStringOption((option) =>
+      option
+        .setName("game")
+        .setDescription("The game number, such as 27, 1A, or 1B.")
+        .setRequired(true)
+    ),
+
   execute,
 };

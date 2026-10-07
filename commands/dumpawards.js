@@ -1,15 +1,20 @@
+const { SlashCommandBuilder } = require("discord.js");
 const sheet = require("../sheet");
-const { errorMessage } = require("../message-helpers");
 
-async function execute(message, args, user) {
-  if (user.isAuthorized) {
-    sheet.dumpAwards();
-    message.channel.send("Awards Dumped.");
+async function execute(interaction, user) {
+  if (!user.isAuthorized) {
+    return;
   }
+
+  sheet.dumpAwards();
+
+  await interaction.reply("Awards Dumped.");
 }
 
 module.exports = {
-  name: "dumpawards",
-  aliases: ["da"],
+  data: new SlashCommandBuilder()
+    .setName("dumpawards")
+    .setDescription("Dump awards to the spreadsheet."),
+
   execute,
 };

@@ -1,111 +1,127 @@
-const Discord = require("discord.js");
+const { SlashCommandBuilder, ChannelType } = require("discord.js");
 const sheet = require("../sheet");
 const { errorMessage } = require("../message-helpers");
 const { getTournamentVCTextTwo, getGameNumber } = require("../constants");
 
-async function execute(message, args, user) {
-  const isdm = message.channel.type === "dm";
+async function execute(interaction, user) {
+  const isdm = interaction.channel?.type === ChannelType.DM;
+
   const games2 = await sheet.getGames();
   const currentGame = games2.find((g) => !g.played);
-  const timestamp = new Date(new Date().getTime());
+  const timestamp = new Date();
   const vcTextTwo = await getTournamentVCTextTwo();
   const gameNumber = await getGameNumber();
+
   const guessOptions = await guess_information.get("guessOptions");
   const subGameIndicator = await guess_information.get("subGameIndicator");
   const finalGame = await guess_information.get("finalGame");
+  const player = interaction.options.getString("player");
+
   if (
-    message.channel.id !== "855806852108255292" &&
-    message.channel.id !== vcTextTwo.toString() &&
-    !isdm
+    !isdm &&
+    interaction.channel.id !== "855806852108255292" &&
+    interaction.channel.id !== vcTextTwo.toString()
   ) {
-    //The ID of tournament-vc-text
-    message.delete();
-    message.channel.send(
-      errorMessage(
+    return interaction.reply({
+      embeds: [errorMessage(
         "Merlin guesses can only be made in #tournament-vc-text or DMs.",
-      ),
+      )],
+      ephemeral: true,
+    });
+  }
+
+  if (!(await guess_information.get("open"))) {
+    return interaction.reply({
+      embeds: [errorMessage(
+        "Merlin guesses can only be made during in-progress games.",
+      )],
+      ephemeral: true,
+    });
+  }
+
+  // Final game: determine the game number from which sub-array
+  // contains the submitted player.
+  if (finalGame) {
+    const normalizedPlayer = player.toLowerCase();
+
+    const finalGameIndex = guessOptions.findIndex((options) =>
+      options.map((opt) => opt.toLowerCase()).includes(normalizedPlayer),
     );
-  } else if (!(await guess_information.get("open"))) {
-    message.channel.send(
-      errorMessage("Merlin guesses can only be made during in-progress games."),
-    );
-  } else if (currentGame.number === gameNumber - 1 && args.length === 1) {
-    message.channel.send(
-      errorMessage(
-        "Must include a valid game number, for example, s!gm wanglebangle 43.",
-      ),
-    );
-  } else if (
-    args.length === 2 &&
-    finalGame.includes(parseInt(args[1])) &&
-    guessOptions[parseInt(args[1]) - (gameNumber - 1)]
-      .map((opt) => opt.toLowerCase())
-      .includes(args[0].toLowerCase())
-  ) {
-    //guessDict[message.author.id + "_" + args[1]] = [
-    //  timestamp,
-    //  message.author.id,
-    //  args[0],
-    //  parseInt(args[1]),
-    //];
-    await guess_information.set(message.author.id + "_" + args[1], [
-      timestamp,
-      message.author.id,
-      args[0],
-      parseInt(args[1]),
-    ]);
-    await guess_information.set(
-      "guessIDs",
-      (await guess_information.get("guessIDs")).concat([
-        message.author.id + "_" + args[1],
-      ]),
-    );
-    if (!isdm) {
-      message.delete();
-      message.channel.send(`<@${message.author.id}>'s guess received!`);
-    } else {
-      message.channel.send("Guess received!");
+
+    if (finalGameIndex !== -1) {
+      const guessedGame = finalGame[finalGameIndex];
+
+      await guess_information.set(`${interaction.user.id}_${guessedGame}`, [
+        timestamp,
+        interaction.user.id,
+        player,
+        guessedGame,
+      ]);
+
+      await guess_information.set(
+        "guessIDs",
+        (await guess_information.get("guessIDs")).concat([
+          `${interaction.user.id}_${guessedGame}`,
+        ]),
+      );
+
+      if (isdm) {
+        return interaction.reply("Guess received!");
+      }
+
+      return interaction.reply(`<@${interaction.user.id}>'s guess received!`);
     }
-  } else if (
-    args.length === 1 &&
-    guessOptions.map((opt) => opt.toLowerCase()).includes(args[0].toLowerCase())
+  }
+
+  // Normal game / A-B subgame.
+  if (
+    guessOptions.map((opt) => opt.toLowerCase()).includes(player.toLowerCase())
   ) {
-    
+    let guessedGame = currentGame.number;
+
     if (subGameIndicator) {
       const subIndicatorList = ["a", "b"];
-      await guess_information.set(message.author.id, [
-        timestamp,
-        message.author.id,
-        args[0],
+
+      guessedGame =
         currentGame.number +
-          (1 + subIndicatorList.indexOf(subGameIndicator)) / 10,
-      ]);
-    } else {
-      await guess_information.set(message.author.id, [
-        timestamp,
-        message.author.id,
-        args[0],
-        currentGame.number,
-      ]);
+        (1 + subIndicatorList.indexOf(subGameIndicator)) / 10;
     }
+
+    await guess_information.set(interaction.user.id, [
+      timestamp,
+      interaction.user.id,
+      player,
+      guessedGame,
+    ]);
 
     await guess_information.set(
       "guessIDs",
-      (await guess_information.get("guessIDs")).concat([message.author.id]),
+      (await guess_information.get("guessIDs")).concat([interaction.user.id]),
     );
-    if (!isdm) {
-      message.delete();
-      message.channel.send(`<@${message.author.id}>'s guess received!`);
-    } else {
-      message.channel.send("Guess received!");
+
+    if (isdm) {
+      return interaction.reply("Guess received!");
     }
-  } else {
-    message.channel.send(errorMessage("Must include a valid player username."));
+
+    return interaction.reply(`<@${interaction.user.id}>'s guess received!`);
   }
+
+  return interaction.reply({
+    embeds: [errorMessage("Must include a valid player username.")],
+    ephemeral: true,
+  });
 }
 
 module.exports = {
-  name: "guessmerlin",
-  aliases: ["g", "gm"],
+  data: new SlashCommandBuilder()
+    .setName("guessmerlin")
+    .setDescription("Submit a guess for Merlin.")
+    .addStringOption((option) =>
+      option
+        .setName("player")
+        .setDescription("The player you think is Merlin.")
+        .setRequired(true),
+    ),
+
   execute,
 };

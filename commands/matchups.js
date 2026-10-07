@@ -1,77 +1,39 @@
-const Discord = require("discord.js");
-const sheet = require("../sheet");
-const { errorMessage, rank, roundToThirds } = require("../message-helpers");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { errorMessage, rank } = require("../message-helpers");
 
-async function execute(message, args, user) {
-  args = args.map((arg) => arg.toLowerCase());
-  //arg 0: player
-  //arg 1: team/opp
-  //arg 2: best/worst (default best)
-  //arg 3: mingames (default 1)
-  let player1;
-  let teamOpp = null;
-  let bestWorst = "Best";
-  let minGames = 2;
-  if (args.length < 1) {
-    return message.channel.send(
-      errorMessage(
-        "Must specify team or opp like this: ``s!matchups team``. You can also specify best or worst matchups and minimum games like this: ``s!matchups opp best 5``"
-      )
-    );
-  } else if (args.length < 2) {
-    player1 = await ids_dictionary.get(message.author.id);
-    if (player1 == null) {
-      return message.channel.send(
-        errorMessage(
-          "Must include a valid player name or player's Discord tag and specify team or opp like this: ``s!matchups imbapingu team``, or be a tourney player yourself and specify team or opp. You can also specify best or worst matchups and minimum games like this: ``s!matchups dev opp best 5``"
-        )
-      );
-    }
-  }
-
-  if (player1 == null) {
-    if (
-      args[0].substr(0, 2) === "<@" &&
-      args[0].charAt(args[0].length - 1) === ">"
-    ) {
-      player1 = await ids_dictionary.get(args[0].substr(2, args[0].length - 3));
-    } else {
-      player1 = await names_dictionary.get(args[0].toLowerCase());
-    }
-  }
-
-  if (args.includes("team")) {
-    teamOpp = "Team";
-  } else if (args.includes("opp")) {
-    teamOpp = "Opp";
-  }
-
-  if (args.includes("best")) {
-    bestWorst = "Best";
-  } else if (args.includes("worst")) {
-    bestWorst = "Worst";
-  }
-
-  for (var arg of args) {
-    if (parseInt(arg) > 2) {
-      minGames = parseInt(arg);
-    }
-  }
-
-  if (player1 == null || teamOpp == null) {
-    return message.channel.send(
-      errorMessage(
-        "Must include a valid player name or player's Discord tag and specify team or opp like this: ``s!matchups imbapingu team``, or be a tourney player yourself and specify team or opp. You can also specify best or worst matchups and minimum games like this: ``s!matchups opp best 5``"
-      )
-    );
-  }
-
+async function execute(interaction, user) {
   try {
+    const playerInput = interaction.options.getString("player");
+    const teamOpp = interaction.options.getString("type");
+    const bestWorst =
+      interaction.options.getString("sort") === "worst"
+        ? "Worst"
+        : "Best";
+    const minGames =
+      interaction.options.getInteger("mingames") ?? 2;
+
+    let player1;
+
+    if (playerInput) {
+      player1 = await names_dictionary.get(playerInput.toLowerCase());
+    } else {
+      player1 = await ids_dictionary.get(interaction.user.id);
+    }
+
+    if (player1 == null) {
+      return interaction.reply({
+        embeds: [errorMessage(
+          "Must include a valid player name or be a tournament player yourself."
+        )],
+        ephemeral: true,
+      });
+    }
+
     const player1Info = await matchup_dictionary.get(player1.global);
 
     let matchupList = [];
 
-    for (var player2 in player1Info) {
+    for (const player2 in player1Info) {
       matchupList.push({
         otherName: player2,
         oppGames: player1Info[player2].oppGames,
@@ -83,67 +45,135 @@ async function execute(message, args, user) {
       });
     }
 
-    let filteredList = [];
+    let filteredList;
 
-    if (teamOpp === "Team") {
-      filteredList = matchupList.filter((item) => item.teamGames >= minGames);
+    if (teamOpp === "team") {
+      filteredList = matchupList.filter(
+        (item) => item.teamGames >= minGames
+      );
+
       if (bestWorst === "Best") {
         filteredList.sort(
-          (a, b) => b.teamWR - a.teamWR || b.teamGames - a.teamGames
+          (a, b) =>
+            b.teamWR - a.teamWR || b.teamGames - a.teamGames
         );
       } else {
         filteredList.sort(
-          (a, b) => a.teamWR - b.teamWR || b.teamGames - a.teamGames
+          (a, b) =>
+            a.teamWR - b.teamWR || b.teamGames - a.teamGames
         );
       }
     } else {
-      filteredList = matchupList.filter((item) => item.oppGames >= minGames);
+      filteredList = matchupList.filter(
+        (item) => item.oppGames >= minGames
+      );
+
       if (bestWorst === "Best") {
         filteredList.sort(
-          (a, b) => b.oppWR - a.oppWR || b.oppGames - a.oppGames
+          (a, b) =>
+            b.oppWR - a.oppWR || b.oppGames - a.oppGames
         );
       } else {
         filteredList.sort(
-          (a, b) => a.oppWR - b.oppWR || b.oppGames - a.oppGames
+          (a, b) =>
+            a.oppWR - b.oppWR || b.oppGames - a.oppGames
         );
       }
     }
 
     filteredList = filteredList.slice(0, 10);
+
     const ranks = rank(
       filteredList,
-      teamOpp === "Team" ? "teamWR" : "oppWR",
-      teamOpp === "Team" ? "teamGames" : "oppGames",
+      teamOpp === "team" ? "teamWR" : "oppWR",
+      teamOpp === "team" ? "teamGames" : "oppGames",
       10
     );
 
-    const embed = new Discord.MessageEmbed()
-      .setTitle(`${bestWorst} ${teamOpp} Matchups: ${player1.global}`)
-      .setDescription(
-        `**Minimum Games: ${minGames}**\n\n${filteredList.map(
-          (entry, i) =>
-            `${ranks[i]}\\. ${entry.otherName}: **${
-              teamOpp === "Team" ? entry.teamWR : entry.oppWR
-            }%** (${teamOpp === "Team" ? entry.teamWins : entry.oppWins}/${
-              teamOpp === "Team" ? entry.teamGames : entry.oppGames
-            })`
-        ).join("\n")}`
+    const embed = new EmbedBuilder()
+      .setTitle(
+        `${bestWorst} ${
+          teamOpp === "team" ? "Team" : "Opp"
+        } Matchups: ${player1.global}`
       )
-      .setFooter(`Updated ${user.updateTime}`);
-    message.channel.send(embed);
+      .setDescription(
+        `**Minimum Games: ${minGames}**\n\n${filteredList
+          .map(
+            (entry, i) =>
+              `${ranks[i]}. ${entry.otherName}: **${
+                teamOpp === "team"
+                  ? entry.teamWR
+                  : entry.oppWR
+              }%** (${
+                teamOpp === "team"
+                  ? entry.teamWins
+                  : entry.oppWins
+              }/${
+                teamOpp === "team"
+                  ? entry.teamGames
+                  : entry.oppGames
+              })`
+          )
+          .join("\n")}`
+      )
+      .setFooter({
+        text: `Updated ${user.updateTime}`,
+      });
+
+    await interaction.reply({
+      embeds: [embed],
+    });
   } catch (err) {
     console.error(err);
-    message.channel.send(
-      errorMessage(
+
+    await interaction.reply({
+      embeds: [errorMessage(
         "😔 There was an error making your request. You may have entered incorrect player names."
-      )
-    );
+      )],
+      ephemeral: true,
+    });
   }
 }
 
 module.exports = {
-  name: "matchups",
-  aliases: ["m", "mlb", "matchup"],
-  description: "Matchups",
+  data: new SlashCommandBuilder()
+    .setName("matchups")
+    .setDescription("View a player's best or worst matchups.")
+    .addStringOption((option) =>
+      option
+        .setName("type")
+        .setDescription("View games played together or against each other.")
+        .setRequired(true)
+        .addChoices(
+          { name: "Team", value: "team" },
+          { name: "Opp", value: "opp" }
+        )
+    )
+    .addStringOption((option) =>
+      option
+        .setName("player")
+        .setDescription(
+          "Player to view. Leave blank to use yourself."
+        )
+        .setRequired(false)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("sort")
+        .setDescription("Show the best or worst matchups.")
+        .setRequired(false)
+        .addChoices(
+          { name: "Best", value: "best" },
+          { name: "Worst", value: "worst" }
+        )
+    )
+    .addIntegerOption((option) =>
+      option
+        .setName("mingames")
+        .setDescription("Minimum number of games played.")
+        .setMinValue(1)
+        .setRequired(false)
+    ),
+
   execute,
 };

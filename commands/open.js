@@ -1,50 +1,106 @@
-const subRegex = new RegExp("[abAB]{1}");
+const { SlashCommandBuilder } = require("discord.js");
 const { getGameNumber } = require("../constants");
 const { errorMessage } = require("../message-helpers");
 
-async function execute(message, args, user) {
-  const gameNumber = await getGameNumber();
-  if (!(await guess_information.get("open")) && user.isAuthorized) {
-    if (
-      args.length === 6 ||
-      (args.length === 7 && subRegex.test(args[0])) ||
-      (args.length === 13 && args[0] === "final")
-    ) {
-      message.channel.send("Guessing Opened!");
-      //open = !open;
-      await guess_information.clear();
-      await guess_information.set("open", true);
-      await guess_information.set("guessIDs", []);
-      //guessDict = {};
-      if (args[0] === "final") {
-        await guess_information.set("finalGame", [gameNumber - 1, gameNumber]);
-        //finalGame = [gameNumber - 1, gameNumber];
-        await guess_information.set("guessOptions", [
-          args.slice(1, 7),
-          args.slice(7, 13),
-        ]);
-        //guessOptions = [args.slice(1,7),args.slice(7,13)];
-      } else if (args.length === 7 && subRegex.test(args[0])) {
-        await guess_information.set("finalGame", false);
-        await guess_information.set("subGameIndicator", args[0].toLowerCase());
-        await guess_information.set("guessOptions", args.slice(1, 7));
-      } else {
-        //guessOptions = args;
-        await guess_information.set("finalGame", false);
-        await guess_information.set("guessOptions", args);
-      }
-    } else {
-      return message.channel.send(
-        errorMessage(
-          "Incorrect or no parameters. Remember to list all player usernames separated by spaces.",
-        ),
-      );
-    }
+async function execute(interaction, user) {
+  if ((await guess_information.get("open")) || !user.isAuthorized) {
+    return;
   }
+
+  const playersInput = interaction.options.getString("players");
+  const finalPlayersInput = interaction.options.getString("finalplayers");
+  const gameType = interaction.options.getString("type");
+
+  const players = playersInput.trim().split(/\s+/);
+  const finalPlayers = finalPlayersInput
+    ? finalPlayersInput.trim().split(/\s+/)
+    : null;
+
+  if (players.length !== 6) {
+    return interaction.reply({
+      embeds: [errorMessage(
+        "Incorrect parameters. The players input must contain exactly 6 player usernames.",
+      )],
+      ephemeral: true,
+    });
+  }
+
+  if (finalPlayers && finalPlayers.length !== 6) {
+    return interaction.reply({
+      embeds: [errorMessage(
+        "Incorrect parameters. The finalplayers input must contain exactly 6 player usernames.",
+      )],
+      ephemeral: true,
+    });
+  }
+
+  if (gameType === "final" && !finalPlayers) {
+    return interaction.reply({
+      embeds: [errorMessage(
+        "The final option requires a second set of 6 player usernames.",
+      )],
+      ephemeral: true,
+    });
+  }
+
+  if (gameType !== "final" && finalPlayers) {
+    return interaction.reply({
+      embeds: [errorMessage(
+        "A second set of players can only be provided when the final option is selected.",
+      )],
+      ephemeral: true,
+    });
+  }
+
+  const gameNumber = await getGameNumber();
+
+  await guess_information.clear();
+  await guess_information.set("open", true);
+  await guess_information.set("guessIDs", []);
+
+  if (gameType === "final") {
+    await guess_information.set("finalGame", [gameNumber - 1, gameNumber]);
+
+    await guess_information.set("guessOptions", [players, finalPlayers]);
+  } else if (gameType === "a" || gameType === "b") {
+    await guess_information.set("finalGame", false);
+    await guess_information.set("subGameIndicator", gameType);
+    await guess_information.set("guessOptions", players);
+  } else {
+    await guess_information.set("finalGame", false);
+    await guess_information.set("guessOptions", players);
+  }
+
+  await interaction.reply("Guessing Opened!");
 }
 
 module.exports = {
-  name: "open",
-  aliases: [],
+  data: new SlashCommandBuilder()
+    .setName("open")
+    .setDescription("Open Merlin guessing for a game.")
+    .addStringOption((option) =>
+      option
+        .setName("players")
+        .setDescription("Six player usernames, separated by spaces.")
+        .setRequired(true),
+    )
+    .addStringOption((option) =>
+      option
+        .setName("finalplayers")
+        .setDescription("Six player usernames for the second final game.")
+        .setRequired(false),
+    )
+    .addStringOption((option) =>
+      option
+        .setName("type")
+        .setDescription("Type of game.")
+        .setRequired(false)
+        .addChoices(
+          { name: "A", value: "a" },
+          { name: "B", value: "b" },
+          { name: "Final", value: "final" },
+        ),
+    ),
+
   execute,
 };

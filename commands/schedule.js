@@ -1,80 +1,128 @@
-const Discord = require("discord.js");
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} = require("discord.js");
 const sheet = require("../sheet");
 const { errorMessage } = require("../message-helpers");
 const { getYear, getMonth, getStartDay } = require("../constants");
-const { format, utcToZonedTime } = require("date-fns-tz");
+const { format } = require("date-fns");
+const { TZDate } = require("@date-fns/tz");
 
 async function scheduleEmbed(dayNumber, footer) {
   const currentDate = new Date();
   const schedule = await sheet.getSchedule();
 
   const daySchedule = schedule.find(
-    (day) => day.number === parseInt(dayNumber),
+    (day) => day.number === parseInt(dayNumber)
   );
+
   const games = await sheet.getGames();
-  return new Discord.MessageEmbed()
+
+  return new EmbedBuilder()
     .setTitle(
       `Day ${dayNumber}: ${format(
-        utcToZonedTime(daySchedule.date, "UTC"),
-        "eee, LLL do",
-      )}`,
+        new TZDate(daySchedule.date, "UTC"),
+        "eee, LLL do"
+      )}`
     )
     .setDescription("All times are shown in your local timezone:")
     .addFields(
       ...daySchedule.games
         .filter((entry) => entry !== null)
         .map((game) => {
-          //added this filter to account for possible missing 5th games
           const timeMessage = `${
             game.time > currentDate
               ? "Not played yet - starts"
               : "In progress - started"
           } <t:${game.time / 1000}:R>`;
+
           const gameHeader = `Game ${game.number} (${game.type}), <t:${
             game.time / 1000
           }:t>`;
+
           if (game.type === "Bullet" || game.type === "Bullet +") {
-            const gameInfos = games.filter((g) => g.number === game.number);
-            const gameInfosPlayed = gameInfos.map(
-              (gameInfo) => gameInfo.played,
+            const gameInfos = games.filter(
+              (g) => g.number === game.number
             );
-            const played = gameInfosPlayed.every(Boolean);
+
+            const played = gameInfos.every(
+              (gameInfo) => gameInfo.played
+            );
 
             return {
               name: gameHeader,
               value: played
-                ? gameInfos.map(
-                    (gameInfo) =>
-                      `${gameInfo.subGame}: ${
-                        gameInfo.spyWin ? "Spy win" : "Resistance win"
-                      }: ${gameInfo.winners.join(", ")}`,
-                  )
-                : timeMessage,
-            };
-          } else {
-            const gameInfo = games.find((g) => g.number === game.number);
-            return {
-              name: gameHeader,
-              value: gameInfo.played
-                ? `${
-                    gameInfo.spyWin ? "Spy win" : "Resistance win"
-                  }: ${gameInfo.winners.join(", ")}`
+                ? gameInfos
+                    .map(
+                      (gameInfo) =>
+                        `${gameInfo.subGame}: ${
+                          gameInfo.spyWin
+                            ? "Spy win"
+                            : "Resistance win"
+                        }: ${gameInfo.winners.join(", ")}`
+                    )
+                    .join("\n")
                 : timeMessage,
             };
           }
-        }),
+
+          const gameInfo = games.find(
+            (g) => g.number === game.number
+          );
+
+          return {
+            name: gameHeader,
+            value: gameInfo.played
+              ? `${
+                  gameInfo.spyWin
+                    ? "Spy win"
+                    : "Resistance win"
+                }: ${gameInfo.winners.join(", ")}`
+              : timeMessage,
+          };
+        })
     )
-    .setFooter(footer);
+    .setFooter({
+      text: footer,
+    });
 }
 
-async function execute(message, args, user) {
+function scheduleButtons(dayNumber) {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId("schedule_previous")
+      .setLabel("Previous Day")
+      .setEmoji("◀")
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(dayNumber <= 1),
+
+    new ButtonBuilder()
+      .setCustomId("schedule_next")
+      .setLabel("Next Day")
+      .setEmoji("▶")
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(dayNumber >= 10)
+  );
+}
+
+async function execute(interaction, user) {
   const YEAR = await getYear();
   const MONTH = await getMonth();
   const START_DAY = await getStartDay();
+
   const currentDate = new Date();
-  const startDate = new Date(Date.UTC(YEAR, MONTH, START_DAY));
-  const endDate = new Date(Date.UTC(YEAR, MONTH, START_DAY + 10));
+  const startDate = new Date(
+    Date.UTC(YEAR, MONTH, START_DAY)
+  );
+  const endDate = new Date(
+    Date.UTC(YEAR, MONTH, START_DAY + 10)
+  );
+
   let dayNumber;
+
   if (currentDate.getTime() < startDate.getTime()) {
     dayNumber = 1;
   } else if (currentDate.getTime() > endDate.getTime()) {
@@ -84,80 +132,138 @@ async function execute(message, args, user) {
       10,
       Math.max(
         1,
-        //currentDate.getUTCDate() - (await getStartDay()) + 1
-        currentDate.getUTCHours() < 9 // day changes at 9AM UTC
-          ? currentDate.getUTCDate() - (await getStartDay())
-          : currentDate.getUTCDate() - (await getStartDay()) + 1,
-      ),
+        currentDate.getUTCHours() < 9
+          ? currentDate.getUTCDate() - START_DAY
+          : currentDate.getUTCDate() - START_DAY + 1
+      )
     );
   }
-  if (args.length > 0) {
-    dayNumber = parseInt(args[0]);
+
+  const requestedDay = interaction.options.getInteger("day");
+
+  if (requestedDay !== null) {
+    dayNumber = requestedDay;
   }
 
   if (!dayNumber) {
-    message.channel.send(
-      errorMessage(
-        "Please enter a day (e.g. 1) or leave blank to use the current day.",
-      ),
-    );
-    return;
+    return interaction.reply({
+      embeds: [errorMessage(
+        "Please enter a day (e.g. 1) or leave blank to use the current day."
+      )],
+      ephemeral: true,
+    });
   }
 
   if (dayNumber < 1 || dayNumber > 10) {
-    message.channel.send(
-      errorMessage(`Could not find a schedule for day ${dayNumber}.`),
-    );
-    return;
+    return interaction.reply({
+      embeds: [errorMessage(
+        `Could not find a schedule for day ${dayNumber}.`
+      )],
+      ephemeral: true,
+    });
   }
 
-  let footer = `Updated ${user.updateTime}`;
+  const footer = `Updated ${user.updateTime}`;
 
   try {
     const embed = await scheduleEmbed(dayNumber, footer);
-    const emb = await message.channel.send(embed);
-    await emb.react("◀");
-    await emb.react("▶");
-    const filter = (reaction, user) => {
-      return ["◀", "▶"].includes(reaction.emoji.name);
-    };
 
-    const collector = emb.createReactionCollector(filter, { time: 60000 });
-    collector.on("collect", async (reaction, author) => {
-      if (reaction.emoji.name === "◀") {
+    await interaction.reply({
+      embeds: [embed],
+      components: [scheduleButtons(dayNumber)],
+    });
+
+    const message = await interaction.fetchReply();
+
+    const collector = message.createMessageComponentCollector({
+      time: 60000,
+      filter: (buttonInteraction) =>
+        buttonInteraction.user.id === interaction.user.id &&
+        ["schedule_previous", "schedule_next"].includes(
+          buttonInteraction.customId
+        ),
+    });
+
+    collector.on("collect", async (buttonInteraction) => {
+      if (buttonInteraction.customId === "schedule_previous") {
         dayNumber = Math.max(dayNumber - 1, 1);
-      } else {
+      } else if (buttonInteraction.customId === "schedule_next") {
         dayNumber = Math.min(dayNumber + 1, 10);
       }
-      const newEmbed = await scheduleEmbed(dayNumber, footer);
-      emb.edit(newEmbed);
-      const userReactions = emb.reactions.cache.filter((reaction) =>
-        reaction.users.cache.has(author.id),
-      );
+
       try {
-        for (const reaction of userReactions.values()) {
-          await reaction.users.remove(author.id);
-        }
+        const newEmbed = await scheduleEmbed(
+          dayNumber,
+          footer
+        );
+
+        await buttonInteraction.update({
+          embeds: [newEmbed],
+          components: [scheduleButtons(dayNumber)],
+        });
       } catch (err) {
-        // Sentry.captureException(err);
         console.error(err);
-        console.error("Failed to remove reactions.");
+
+        if (!buttonInteraction.replied) {
+          await buttonInteraction.reply({
+            embeds: [errorMessage(
+              "😔 There was an error updating the schedule. Please try again in a bit."
+            )],
+            ephemeral: true,
+          });
+        }
+      }
+    });
+
+    collector.on("end", async () => {
+      try {
+        const finalEmbed = await scheduleEmbed(
+          dayNumber,
+          footer
+        );
+
+        await message.edit({
+          embeds: [finalEmbed],
+          components: [],
+        });
+      } catch (err) {
+        console.error(err);
       }
     });
   } catch (err) {
-    // Sentry.captureException(err);
     console.error(err);
-    message.channel.send(
-      errorMessage(
-        "😔 There was an error making your request. Please try again in a bit.",
-      ),
-    );
+
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({
+        embeds: [errorMessage(
+          "😔 There was an error making your request. Please try again in a bit."
+        )],
+        ephemeral: true,
+      });
+    } else {
+      await interaction.reply({
+        embeds: [errorMessage(
+          "😔 There was an error making your request. Please try again in a bit."
+        )],
+        ephemeral: true,
+      });
+    }
   }
 }
 
 module.exports = {
-  name: "schedule",
-  aliases: ["sc"],
-  description: "Schedule",
+  data: new SlashCommandBuilder()
+    .setName("schedule")
+    .setDescription("View the tournament schedule.")
+    .addIntegerOption((option) =>
+      option
+        .setName("day")
+        .setDescription(
+          "Day to view. Leave blank to use the current day."
+        )
+        .setMinValue(1)
+        .setMaxValue(10)
+        .setRequired(false)
+    ),
   execute,
 };
