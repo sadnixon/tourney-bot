@@ -1,16 +1,15 @@
-const {
-  SlashCommandBuilder,
-} = require("discord.js");
+const { SlashCommandBuilder } = require("discord.js");
 
 async function execute(interaction, user) {
   if (!user.isAuthorized) {
     return;
   }
 
-  await team_roles_channels.clear("teams");
+  await team_roles_channels.set("teams", []);
+  await team_roles_channels.set("mod_team", []);
 
   await interaction.reply(
-    "All team roles and channels have now been cleared from the list."
+    "All team roles and channels have now been cleared from the list.",
   );
 
   console.log(team_roles_channels);
