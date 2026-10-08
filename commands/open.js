@@ -16,19 +16,19 @@ async function execute(interaction, user) {
     ? finalPlayersInput.trim().split(/\s+/)
     : null;
 
-  if (players.length !== 6) {
+  if (players.length !== 8) {
     return interaction.reply({
       embeds: [errorMessage(
-        "Incorrect parameters. The players input must contain exactly 6 player usernames.",
+        "Incorrect parameters. The players input must contain exactly 8 player usernames.",
       )],
       ephemeral: true,
     });
   }
 
-  if (finalPlayers && finalPlayers.length !== 6) {
+  if (finalPlayers && finalPlayers.length !== 8) {
     return interaction.reply({
       embeds: [errorMessage(
-        "Incorrect parameters. The finalplayers input must contain exactly 6 player usernames.",
+        "Incorrect parameters. The finalplayers input must contain exactly 8 player usernames.",
       )],
       ephemeral: true,
     });
@@ -37,7 +37,7 @@ async function execute(interaction, user) {
   if (gameType === "final" && !finalPlayers) {
     return interaction.reply({
       embeds: [errorMessage(
-        "The final option requires a second set of 6 player usernames.",
+        "The final option requires a second set of 8 player usernames.",
       )],
       ephemeral: true,
     });
@@ -81,13 +81,13 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("players")
-        .setDescription("Six player usernames, separated by spaces.")
+        .setDescription("Eight player usernames, separated by spaces.")
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("finalplayers")
-        .setDescription("Six player usernames for the second final game.")
+        .setDescription("Eight player usernames for the second final game.")
         .setRequired(false),
     )
     .addStringOption((option) =>
