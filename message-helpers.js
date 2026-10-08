@@ -69,8 +69,8 @@ async function alertMessage(client, mods = false) {
   console.log(guild.channels.cache);
 
   if (mods) {
-    await guild.channels.cache
-      .get(mod_team[1])
+    await guild.channels
+      .fetch(mod_team[1])
       .send(
         `Hello, ${mod_team[0]}! The game will happen <t:${
           currentTime / 1000
@@ -80,24 +80,24 @@ async function alertMessage(client, mods = false) {
 
   for (var team of teams) {
     if (currentGame.number > gameNumber - 2) {
-      await guild.channels.cache
-        .get(team[1])
+      await guild.channels
+        .fetch(team[1])
         .send(
           `Hello, ${team[0]}! The final games will happen <t:${
             currentTime / 1000
           }:R>. Are your players ready?`
         );
     } else if (["Duo", "Duo +"].includes(currentType)) {
-      await guild.channels.cache
-        .get(team[1])
+      await guild.channels
+        .fetch(team[1])
         .send(
           `Hello, ${team[0]}! The game will happen <t:${
             currentTime / 1000
           }:R>. Are your player and coach ready?`
         );
     } else {
-      await guild.channels.cache
-        .get(team[1])
+      await guild.channels
+        .fetch(team[1])
         .send(
           `Hello, ${team[0]}! The game will happen <t:${
             currentTime / 1000
