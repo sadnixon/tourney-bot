@@ -12,6 +12,7 @@ const {
   DISCORD_TOKEN,
   CLIENT_ID,
   GUILD_ID,
+  DEPLOY_GUILD_ID,
 } = require('./env');
 
 // -----------------------------------------------------------------------------
@@ -61,11 +62,19 @@ async function deployCommands() {
     // -------------------------------------------------------------------------
     // Development
     //
-    // If GUILD_ID is provided, deploy to that guild.
-    // Guild commands update immediately.
+    // Deploy to the specified guild and clear global commands.
     // -------------------------------------------------------------------------
 
-    if (GUILD_ID) {
+    if (DEPLOY_GUILD_ID) {
+      // Clear global commands
+      await rest.put(
+        Routes.applicationCommands(CLIENT_ID),
+        {
+          body: [],
+        }
+      );
+
+      // Deploy guild commands
       await rest.put(
         Routes.applicationGuildCommands(
           CLIENT_ID,
@@ -79,6 +88,7 @@ async function deployCommands() {
       console.log(
         `Successfully registered ${commands.length} guild command(s).`
       );
+      console.log("Cleared global commands.");
 
       return;
     }
@@ -86,10 +96,21 @@ async function deployCommands() {
     // -------------------------------------------------------------------------
     // Production
     //
-    // Without GUILD_ID, deploy globally.
-    // Global commands may take some time to propagate.
+    // Deploy globally and clear guild-level commands.
     // -------------------------------------------------------------------------
 
+    // Clear guild commands
+    await rest.put(
+      Routes.applicationGuildCommands(
+        CLIENT_ID,
+        GUILD_ID
+      ),
+      {
+        body: [],
+      }
+    );
+
+    // Deploy global commands
     await rest.put(
       Routes.applicationCommands(CLIENT_ID),
       {
@@ -100,8 +121,9 @@ async function deployCommands() {
     console.log(
       `Successfully registered ${commands.length} global command(s).`
     );
+    console.log("Cleared guild commands.");
   } catch (error) {
-    console.error('Failed to deploy commands:', error);
+    console.error("Failed to deploy commands:", error);
     process.exitCode = 1;
   }
 }
