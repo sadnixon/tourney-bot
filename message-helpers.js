@@ -60,7 +60,6 @@ async function alertMessage(client, mods = false) {
     .filter((entry) => entry !== null)
     .find((g) => g.number === currentGame.number).type;
 
-    
   console.log(client);
   console.log(await client.guilds.cache);
   console.log(await getGuildID());
@@ -69,40 +68,34 @@ async function alertMessage(client, mods = false) {
   console.log(guild.channels.cache);
 
   if (mods) {
-    await guild.channels
-      .fetch(mod_team[1])
-      .send(
-        `Hello, ${mod_team[0]}! The game will happen <t:${
-          currentTime / 1000
-        }:R>. Are you ready to wrangle some players?`
-      );
+    const modChannel = await guild.channels.fetch(mod_team[1]);
+    await modChannel.send(
+      `Hello, ${mod_team[0]}! The game will happen <t:${
+        currentTime / 1000
+      }:R>. Are you ready to wrangle some players?`,
+    );
   }
 
   for (var team of teams) {
+    const teamChannel = await guild.channels.fetch(team[1]);
     if (currentGame.number > gameNumber - 2) {
-      await guild.channels
-        .fetch(team[1])
-        .send(
-          `Hello, ${team[0]}! The final games will happen <t:${
-            currentTime / 1000
-          }:R>. Are your players ready?`
-        );
+      await teamChannel.send(
+        `Hello, ${team[0]}! The final games will happen <t:${
+          currentTime / 1000
+        }:R>. Are your players ready?`,
+      );
     } else if (["Duo", "Duo +"].includes(currentType)) {
-      await guild.channels
-        .fetch(team[1])
-        .send(
-          `Hello, ${team[0]}! The game will happen <t:${
-            currentTime / 1000
-          }:R>. Are your player and coach ready?`
-        );
+      await teamChannel.send(
+        `Hello, ${team[0]}! The game will happen <t:${
+          currentTime / 1000
+        }:R>. Are your player and coach ready?`,
+      );
     } else {
-      await guild.channels
-        .fetch(team[1])
-        .send(
-          `Hello, ${team[0]}! The game will happen <t:${
-            currentTime / 1000
-          }:R>. Is your player ready?`
-        );
+      await teamChannel.send(
+        `Hello, ${team[0]}! The game will happen <t:${
+          currentTime / 1000
+        }:R>. Is your player ready?`,
+      );
     }
   }
 }
