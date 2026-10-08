@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { errorMessage } = require("../message-helpers");
+const { sheet_data } = require("../constants");
 
 async function execute(interaction, user) {
   if (!user.isAuthorized) {
@@ -71,14 +72,14 @@ module.exports = {
           { name: "teamEmoji5", value: "teamEmoji5" },
           { name: "teamEmoji6", value: "teamEmoji6" },
           { name: "teamEmoji7", value: "teamEmoji7" },
-          { name: "teamEmoji8", value: "teamEmoji8" }
-        )
+          { name: "teamEmoji8", value: "teamEmoji8" },
+        ),
     )
     .addStringOption((option) =>
       option
         .setName("value")
         .setDescription("New value for the setting.")
-        .setRequired(true)
+        .setRequired(true),
     ),
 
   execute,

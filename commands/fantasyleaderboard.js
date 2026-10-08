@@ -65,9 +65,9 @@ async function execute(interaction, user) {
     console.error(err);
 
     await interaction.reply({
-      content: errorMessage(
+      embeds: [errorMessage(
         "😔 There was an error making your request. Please try again in a bit.",
-      ),
+      )],
       ephemeral: true,
     });
   }
