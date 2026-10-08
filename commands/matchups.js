@@ -94,7 +94,7 @@ async function execute(interaction, user) {
         `**Minimum Games: ${minGames}**\n\n${filteredList
           .map(
             (entry, i) =>
-              `${ranks[i]}. ${entry.otherName}: **${
+              `${ranks[i]}\\. ${entry.otherName}: **${
                 teamOpp === "team" ? entry.teamWR : entry.oppWR
               }%** (${teamOpp === "team" ? entry.teamWins : entry.oppWins}/${
                 teamOpp === "team" ? entry.teamGames : entry.oppGames

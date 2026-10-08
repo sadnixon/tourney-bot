@@ -34,7 +34,7 @@ async function execute(interaction, user) {
           .filter((entry) => entry.name !== null)
           .map(
             (entry, i) =>
-              `${ranks[i]}. <@${entry.name}> Points: ${
+              `${ranks[i]}\\. <@${entry.name}> Points: ${
                 entry.score
               } Accuracy: ${(entry.acc * 100).toFixed(1)}%`
           )

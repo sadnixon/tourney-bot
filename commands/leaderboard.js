@@ -20,7 +20,7 @@ async function execute(interaction, user) {
         `${leaderboard
           .map(
             (entry, i) =>
-              `${ranks[i]}. ${entry.name}: ${entry.score}`
+              `${ranks[i]}\\. ${entry.name}: ${entry.score}`
           )
           .join("\n")}\n\n**Points Remaining:** ${pointsRemaining}`
       )
