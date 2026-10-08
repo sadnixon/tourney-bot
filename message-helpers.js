@@ -70,7 +70,7 @@ async function alertMessage(client, mods = false) {
   if (mods) {
     const modChannel = await guild.channels.fetch(mod_team[1]);
     await modChannel.send(
-      `Hello, ${mod_team[0]}! The game will happen <t:${
+      `Hello, <@&${mod_team[0]}>! The game will happen <t:${
         currentTime / 1000
       }:R>. Are you ready to wrangle some players?`,
     );
@@ -80,19 +80,19 @@ async function alertMessage(client, mods = false) {
     const teamChannel = await guild.channels.fetch(team[1]);
     if (currentGame.number > gameNumber - 2) {
       await teamChannel.send(
-        `Hello, ${team[0]}! The final games will happen <t:${
+        `Hello, <@&${team[0]}>! The final games will happen <t:${
           currentTime / 1000
         }:R>. Are your players ready?`,
       );
     } else if (["Duo", "Duo +"].includes(currentType)) {
       await teamChannel.send(
-        `Hello, ${team[0]}! The game will happen <t:${
+        `Hello, <@&${team[0]}>! The game will happen <t:${
           currentTime / 1000
         }:R>. Are your player and coach ready?`,
       );
     } else {
       await teamChannel.send(
-        `Hello, ${team[0]}! The game will happen <t:${
+        `Hello, <@&${team[0]}>! The game will happen <t:${
           currentTime / 1000
         }:R>. Is your player ready?`,
       );
