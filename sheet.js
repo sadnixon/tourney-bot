@@ -522,7 +522,7 @@ async function getGames() {
         );
       }
 
-      const spies = [players[spyIndexes[0]], players[spyIndexes[1]]];
+      const spies = [players[spyIndexes[0]], players[spyIndexes[1]], players[spyIndexes[2]]];
       const resistance = players.filter((p) => !spies.includes(p));
 
       let winners = [];
