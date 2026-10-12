@@ -37,7 +37,7 @@ async function loadSheet() {
   await doc.sheetsByTitle["Short Scoreboard + Player List"].loadCells("B3:H21"); //The borders of the Leaderboard on main sheet
   await doc.sheetsByTitle["Main Scoreboard"].loadCells("B2:AO43"); //The relevant portion of the Main Scoreboard, including the leaderboard
   await doc.sheetsByTitle["Personal Scores + Stats"].loadCells("A1:J61"); //The borders of the Personal Scores Block
-  await doc.sheetsByTitle["Fantasy"].loadCells("D44:H72"); //The lefthand portion of the Fantasy League
+  await doc.sheetsByTitle["Fantasy"].loadCells("D44:H76"); //The lefthand portion of the Fantasy League
   await moddoc.loadInfo();
   await moddoc.sheetsByTitle["Guesses"].loadCells("A1:G2000");
   await moddoc.sheetsByTitle["Personal Scores"].loadCells("A1:C200");
@@ -282,7 +282,7 @@ async function getGuessLeaderboard() {
 
 async function getFantasyLeaderboard() {
   const sheet = doc.sheetsByTitle["Fantasy"];
-  const leaderboard = _.range(44, 73, 1).map((row) => ({
+  const leaderboard = _.range(44, 76, 1).map((row) => ({
     mod: "",
     team: sheet.getCellByA1(`E${row}`).value,
     name: sheet.getCellByA1(`F${row}`).value,
@@ -438,8 +438,8 @@ async function getSchedule() {
           }`,
         ).value;
         //if (["Bullet", "Bullet +"].includes(gameType)) {
-          //skips = skips + 1;
-          //dayDoubles[idx] = dayDoubles[idx] + 1;
+        //skips = skips + 1;
+        //dayDoubles[idx] = dayDoubles[idx] + 1;
         //}
         if (row === dayGames[idx] - 1) {
           skips = 0;
@@ -510,7 +510,7 @@ async function getGames() {
       let players = [];
       if (["Duo", "Duo +"].includes(mode)) {
         players = _.range(0, 8).map((i) =>
-          sheet.getCell(row + 3, 33 + i).isBlank()
+          sheet.getCell(row + 3, 33 + i).value === ""
             ? `${emojis[i]} ${sheet.getCell(row + 3, 7 + i * 3).value}`
             : `${emojis[i]} ${sheet.getCell(row + 3, 7 + i * 3).value} (${
                 sheet.getCell(row + 3, 33 + i).value
@@ -522,7 +522,11 @@ async function getGames() {
         );
       }
 
-      const spies = [players[spyIndexes[0]], players[spyIndexes[1]], players[spyIndexes[2]]];
+      const spies = [
+        players[spyIndexes[0]],
+        players[spyIndexes[1]],
+        players[spyIndexes[2]],
+      ];
       const resistance = players.filter((p) => !spies.includes(p));
 
       let winners = [];
